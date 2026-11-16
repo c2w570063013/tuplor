@@ -37,7 +37,7 @@ export function TopBar() {
     : [{ label: 'Select a database first', disabled: true }];
 
   return (
-    <div className="flex h-11 shrink-0 items-center gap-2 border-b border-border bg-panel px-2.5">
+    <div data-titlebar className="flex h-11 shrink-0 items-center gap-2 border-b border-border bg-panel px-2.5">
       <IconButton label="Toggle sidebar" shortcut={`${modKey} B`} onClick={ws.toggleSidebar}><PanelLeft size={15} /></IconButton>
       <div className="flex items-center gap-2 pr-2 pl-1">
         <img src="/logo.svg" alt="" className="h-5 w-5" />

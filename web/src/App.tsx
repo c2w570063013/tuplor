@@ -14,6 +14,10 @@ import { TabBar } from '@/shell/TabBar';
 import { TabContent } from '@/shell/TabContent';
 import { TopBar } from '@/shell/TopBar';
 import { useGlobalShortcuts } from '@/shell/useGlobalShortcuts';
+import { useCommandPalette } from '@/shell/CommandPalette';
+import { requestCloseTab } from '@/shell/TabBar';
+import { useConnectionDialog } from '@/features/connections/ConnectionDialog';
+import { initDesktopBridge } from '@/lib/desktop';
 
 export default function App() {
   const theme = useSettings((s) => s.theme);
@@ -22,6 +26,22 @@ export default function App() {
   useGlobalShortcuts();
 
   useEffect(() => applyTheme(theme), [theme]);
+  useEffect(
+    () =>
+      initDesktopBridge({
+        'new-query': () => useWorkspace.getState().newQuery(),
+        'new-connection': () => useConnectionDialog.getState().show(),
+        'close-tab': () => {
+          const s = useWorkspace.getState();
+          const t = s.tabs.find((x) => x.id === s.activeTabId);
+          if (t) requestCloseTab(t);
+        },
+        'open-settings': () => useWorkspace.getState().openTab({ kind: 'settings', title: 'Settings', key: 'settings' }),
+        'toggle-sidebar': () => useWorkspace.getState().toggleSidebar(),
+        'command-palette': () => useCommandPalette.getState().setOpen(!useCommandPalette.getState().open),
+      }),
+    [],
+  );
   useEffect(() => {
     const { load, connect } = useConnections.getState();
     load().then(() => {
