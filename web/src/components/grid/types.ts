@@ -61,6 +61,8 @@ export interface CellEditorSpec {
   placeholder?: string;
   /** Language for the long editor ("json" → pretty print + validation). */
   language?: 'json' | 'text';
+  /** Long values: open the viewer first (Edit button switches to editing), e.g. bytea. */
+  viewFirst?: boolean;
 }
 
 export interface GridMenuContext {

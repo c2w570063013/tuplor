@@ -23,6 +23,7 @@ import { useWorkspace } from '@/stores/workspace';
 import type { TabProps } from '../common/TabProps';
 import { shortType, tableApi, TEMPORAL_HINT } from './api';
 import { ColumnsIcon, ColumnsMenu } from './ColumnsMenu';
+import './commands';
 import { cleanConditions, FilterBar, type FilterDraft, type FilterMode } from './FilterBar';
 import {
   buildChanges, countChanges, EMPTY, insertedDisplayRow, mergedRow, setCell, setInsertCell, type Staged,
@@ -54,7 +55,8 @@ function editorSpec(col: TableColumn, value: CellValue): CellEditorSpec {
   }
   if (col.enumValues && !col.isArray) return { kind: 'choice', nullable, options: col.enumValues.map((v) => ({ label: v, value: v })) };
   if (col.udtName === 'json' || col.udtName === 'jsonb') return { kind: 'long', language: 'json', nullable };
-  if (col.udtName === 'bytea' || col.udtName === 'xml') return { kind: 'long', nullable };
+  if (col.udtName === 'bytea') return { kind: 'long', nullable, viewFirst: true, placeholder: '\\x0123abcd' };
+  if (col.udtName === 'xml') return { kind: 'long', nullable };
   if (typeof value === 'string' && (value.includes('\n') || value.length > 160)) return { kind: 'long', nullable };
   return {
     kind: 'text', nullable,

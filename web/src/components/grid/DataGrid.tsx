@@ -97,6 +97,9 @@ export function normRange(r: CellRange) {
   };
 }
 
+/** Header type label: explicit label, else the pg type name with arrays shown as int4[]. */
+const typeLabelOf = (c: GridColumn) => c.typeLabel ?? (c.typeName?.startsWith('_') ? c.typeName.slice(1) + '[]' : c.typeName ?? '');
+
 let measureCtx: CanvasRenderingContext2D | null = null;
 function textWidth(text: string, font: string): number {
   if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d');
@@ -108,7 +111,7 @@ function textWidth(text: string, font: string): number {
 function fitWidth(c: GridColumn, rows: CellValue[][], idx: number, fontSize: number, sample: number, max: number): number {
   const font = `${fontSize}px Inter, -apple-system, system-ui, sans-serif`;
   const headFont = `600 ${fontSize}px Inter, -apple-system, system-ui, sans-serif`;
-  let w = textWidth(c.name, headFont) + (c.isPk ? 16 : 0) + textWidth(c.typeLabel ?? c.typeName ?? '', `${Math.max(9, fontSize - 2)}px Inter, system-ui`) + 52;
+  let w = textWidth(c.name, headFont) + (c.isPk ? 16 : 0) + textWidth(typeLabelOf(c), `${Math.max(9, fontSize - 2)}px Inter, system-ui`) + 52;
   const step = Math.max(1, Math.floor(rows.length / sample));
   for (let i = 0, n = 0; i < rows.length && n < sample; i += step, n++) {
     const t = cellToText(rows[i]?.[idx], 'NULL');
@@ -209,13 +212,12 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
     overscan: 10,
   });
   const [view, setView] = useState({ left: 0, width: 1600 });
-  const rafRef = useRef(0);
   const onScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
+    // Only horizontal movement changes which columns render; vertical is handled by the virtualizer.
     if (el.scrollLeft === view.left && el.clientWidth === view.width) return;
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => setView({ left: el.scrollLeft, width: el.clientWidth }));
+    setView({ left: el.scrollLeft, width: el.clientWidth });
   };
   useLayoutEffect(() => {
     const el = scrollRef.current;
@@ -278,7 +280,7 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
   const startEdit = useCallback((row: number, col: number, initial?: string) => {
     const spec = specFor(row, col);
     if (!spec) return false;
-    if (spec.kind === 'long') { setViewer({ row, col, edit: true }); return true; }
+    if (spec.kind === 'long') { setViewer({ row, col, edit: !spec.viewFirst }); return true; }
     const d = order.indexOf(col);
     scrollIntoView(row, d);
     setEditing({ row, col, initial });
@@ -499,6 +501,7 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
   // ---------------------------------------------------------------- keyboard
   const handleKey = (e: React.KeyboardEvent) => {
     if (editing || e.target !== scrollRef.current) return;
+    const sel = selRef.current; // latest, even before React re-renders
     if (onKeyDown?.(e, sel)) return;
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key.toLowerCase() === 'c') {
@@ -673,7 +676,7 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
                   >
                     {c.isPk && <KeyRound size={11} className="shrink-0 text-warning" />}
                     <span className="truncate font-semibold text-fg">{c.name}</span>
-                    {(c.typeLabel ?? c.typeName) && <span className="min-w-0 shrink truncate text-[10px] font-normal text-subtle">{c.typeLabel ?? c.typeName}</span>}
+                    {(c.typeLabel ?? c.typeName) && <span className="min-w-0 shrink truncate text-[10px] font-normal text-subtle">{typeLabelOf(c)}</span>}
                     <span className="ml-auto" />
                     {canSort && (
                       <button

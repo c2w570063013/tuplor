@@ -17,6 +17,7 @@ import { confirm } from '@/stores/dialogs';
 import { useWorkspace } from '@/stores/workspace';
 import type { TabProps } from '../common/TabProps';
 import { shortType, tableApi } from './api';
+import './commands';
 
 const DELIMITERS = [
   { value: '', label: 'Auto-detect' },

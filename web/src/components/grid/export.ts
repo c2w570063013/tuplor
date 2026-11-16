@@ -13,7 +13,9 @@ export const EXPORT_FORMATS: { value: ExportFormat; label: string; ext: string }
 ];
 
 function csvEscape(s: string, sep: string) {
-  return /["\n\r]/.test(s) || s.includes(sep) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  // TSV (clipboard / spreadsheets): only quote when needed to keep the cell intact.
+  const needs = sep === '\t' ? /[\t\n\r]/.test(s) || s.startsWith('"') : /["\n\r]/.test(s) || s.includes(sep);
+  return needs ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
 
 /** JSON-friendly value: parse json/jsonb text, turn safe numeric strings into numbers. */

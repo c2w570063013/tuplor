@@ -258,7 +258,7 @@ export function ValueViewer(props: ValueViewerProps) {
           {jsonError && (
             <span className="flex min-w-0 items-center gap-1 truncate text-[11px] text-danger"><AlertCircle size={12} className="shrink-0" />{jsonError}</span>
           )}
-          {(!json || !editing) && view !== 'json' && (
+          {(editing ? !json && !draftNull : raw !== null && (view === 'text' || view === 'utf8')) && (
             <IconButton size="xs" label={wrap ? 'Disable word wrap' : 'Word wrap'} active={wrap} onClick={() => setWrap((w) => !w)}><WrapText size={13} /></IconButton>
           )}
           <IconButton size="xs" label="Copy value" onClick={copy}>{copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}</IconButton>
