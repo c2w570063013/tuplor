@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * PG Studio design tokens. Use ONLY these semantic colors in components
+ * (bg-bg, bg-panel, bg-elevated, bg-hover, text-fg, text-muted, text-subtle,
+ * border-border, bg-accent, text-accent, bg-accent-soft, text-danger, ...)
+ * so that light & dark themes both work.
+ */
+:root {
+  --bg: #ffffff;
+  --panel: #f7f7f8;
+  --elevated: #ffffff;
+  --sunken: #f1f1f3;
+  --hover: rgba(15, 23, 42, 0.05);
+  --active: rgba(15, 23, 42, 0.09);
+  --border: #e6e6ea;
+  --border-strong: #d4d4da;
+  --fg: #18181b;
+  --muted: #5b5b66;
+  --subtle: #8e8e99;
+  --accent: #4f6ef7;
+  --accent-hover: #3f5ee8;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(79, 110, 247, 0.10);
+  --selection: rgba(79, 110, 247, 0.14);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.10);
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.10);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.12);
+  --info: #0891b2;
+  --grid-header: #f7f7f8;
+  --grid-line: #ececf0;
+  --grid-alt: #fbfbfc;
+  --null: #a1a1aa;
+  --syntax-string: #0a7d32;
+  --syntax-number: #b45309;
+  --syntax-keyword: #7c3aed;
+  --shadow: 0 8px 28px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121316;
+  --panel: #18191d;
+  --elevated: #202126;
+  --sunken: #0e0f11;
+  --hover: rgba(255, 255, 255, 0.05);
+  --active: rgba(255, 255, 255, 0.09);
+  --border: #2a2b31;
+  --border-strong: #3a3b43;
+  --fg: #e8e8ec;
+  --muted: #a3a3ae;
+  --subtle: #6f6f7b;
+  --accent: #6b85ff;
+  --accent-hover: #8198ff;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(107, 133, 255, 0.14);
+  --selection: rgba(107, 133, 255, 0.22);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.13);
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.13);
+  --info: #22d3ee;
+  --grid-header: #1a1b1f;
+  --grid-line: #26272d;
+  --grid-alt: #15161a;
+  --null: #5f5f6b;
+  --syntax-string: #86efac;
+  --syntax-number: #fdba74;
+  --syntax-keyword: #c4b5fd;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-elevated: var(--elevated);
+  --color-sunken: var(--sunken);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-selection: var(--selection);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-grid-header: var(--grid-header);
+  --color-grid-line: var(--grid-line);
+  --color-grid-alt: var(--grid-alt);
+  --color-null: var(--null);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-number: var(--syntax-number);
+  --color-syntax-keyword: var(--syntax-keyword);
+  --shadow-pop: var(--shadow);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  border-color: var(--border);
+}
+
+::selection {
+  background: var(--selection);
+}
+
+/* Thin, unobtrusive scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* Focus ring */
+.focus-ring:focus-visible, button:focus-visible, [role="menuitem"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+/* Resizable panels separator */
+[data-separator] {
+  background: var(--border);
+  transition: background 120ms;
+}
+[data-separator][aria-orientation="vertical"] { width: 1px; }
+[data-separator][aria-orientation="horizontal"] { height: 1px; }
+[data-separator]:hover, [data-separator][data-separator-state="drag"], [data-separator][data-separator="active"] {
+  background: var(--accent);
+}
+
+@keyframes pg-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pg-pop-in { from { opacity: 0; transform: translateY(4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.animate-fade-in { animation: pg-fade-in 120ms ease-out; }
+.animate-pop-in { animation: pg-pop-in 140ms cubic-bezier(0.16, 1, 0.3, 1); }
