@@ -236,6 +236,15 @@ async function readOnly<T>(connId: string, db: string, fn: (c: pg.PoolClient) =>
   });
 }
 
+/** Replace $n placeholders with literals (for display / "open in SQL editor" only — never executed). */
+function inlineParams(sql: string, params: unknown[]): string {
+  return sql.replace(/\$(\d+)/g, (m, n) => {
+    const v = params[Number(n) - 1];
+    if (Array.isArray(v)) return `ARRAY[${v.map((x) => quoteLiteral(x)).join(', ')}]`;
+    return Number(n) <= params.length ? quoteLiteral(v) : m;
+  });
+}
+
 function toParam(v: CellValue): unknown {
   if (v === null || v === undefined) return null;
   if (typeof v === 'object') return JSON.stringify(v);
@@ -449,7 +458,8 @@ export default async function tableDataRoutes(app: FastifyInstance) {
     const rows = res.rows as CellValue[][];
     const hasMore = rows.length > limit;
     if (hasMore) rows.length = limit;
-    return { columns: info.columns.map((c) => c.name), rows, hasMore, durationMs: performance.now() - t0, sql };
+    const pageSql = `SELECT * FROM ${qualified(schema, table)}${where}${buildOrder(info, req.body)} LIMIT ${limit} OFFSET ${offset}`;
+    return { columns: info.columns.map((c) => c.name), rows, hasMore, durationMs: performance.now() - t0, sql, sqlLiteral: inlineParams(pageSql, params) };
   });
 
   app.post<{ Params: P; Body: RowsQuery & { exact?: boolean } }>(`${BASE}/count`, async (req): Promise<CountResponse> => {

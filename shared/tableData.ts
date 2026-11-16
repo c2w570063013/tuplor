@@ -93,6 +93,8 @@ export interface RowsResponse {
   durationMs: number;
   /** The SELECT that was executed (with $n placeholders). */
   sql: string;
+  /** Same query with values inlined (for display / opening in the SQL editor). */
+  sqlLiteral: string;
 }
 
 export interface CountResponse {
