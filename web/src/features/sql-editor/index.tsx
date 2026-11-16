@@ -492,7 +492,10 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
       saveTimer.current = setTimeout(flushSave, 400);
     });
     ed.onDidChangeCursorSelection((e) => setHasSelection(!e.selection.isEmpty()));
-    ed.onDidDispose(() => unbindModel(m));
+    ed.onDidDispose(() => {
+      unbindModel(m);
+      if (import.meta.env.DEV) delete (window as any).__pgstudioEditors?.[tab.id];
+    });
     if (active) ed.focus();
   };
 
