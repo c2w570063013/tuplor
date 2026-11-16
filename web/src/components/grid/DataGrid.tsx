@@ -69,6 +69,8 @@ export interface DataGridProps {
   gridRef?: Ref<DataGridHandle>;
   /** Label for the value viewer subtitle, e.g. row key. */
   describeRow?: (row: number) => string;
+  /** When this changes, the grid scrolls back to the top (e.g. new query / page). */
+  scrollKey?: string | number;
 }
 
 export interface DataGridHandle {
@@ -245,6 +247,15 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
     return [a, b];
   }, [layout, view, order]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const scrollKeyRef = useRef(props.scrollKey);
+  useEffect(() => {
+    if (scrollKeyRef.current === props.scrollKey) return;
+    scrollKeyRef.current = props.scrollKey;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = 0;
+    setSel(null);
+  }, [props.scrollKey, setSel]);
+
   const scrollIntoView = useCallback((row: number, dcol: number) => {
     virt.scrollToIndex(row, { align: 'auto' });
     const el = scrollRef.current;
@@ -254,6 +265,8 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
     if (x - rownumW < el.scrollLeft) el.scrollLeft = x - rownumW;
     else if (x + w > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.min(x - rownumW, x + w - el.clientWidth);
   }, [virt, layout, widths, order, rownumW]);
+
+  const [menuCtx, setMenuCtx] = useState<GridMenuContext | null>(null);
 
   // ---------------------------------------------------------------- editing / viewer
   const [editing, setEditing] = useState<{ row: number; col: number; initial?: string } | null>(null);
@@ -466,6 +479,23 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
     if (!startEdit(r, c)) openValue(r, c);
   };
 
+  // Stable handler object so memoized rows only re-render when their own data changes.
+  const handlerImpl = useRef<RowHandlers>(null as unknown as RowHandlers);
+  handlerImpl.current = {
+    cellMouseDown, cellMouseEnter, cellDoubleClick, rownumMouseDown, rownumMouseEnter,
+    cellContextMenu: (r, c, e) => { setMenuCtx({ kind: 'cell', col: c, row: r, selection: null }); onCellContextMenu?.({ row: r, col: c }, e); },
+    rownumContextMenu: (r) => setMenuCtx({ kind: 'rownum', col: order[0], row: r, selection: null }),
+  };
+  const handlers = useMemo<RowHandlers>(() => ({
+    cellMouseDown: (...a) => handlerImpl.current.cellMouseDown(...a),
+    cellMouseEnter: (...a) => handlerImpl.current.cellMouseEnter(...a),
+    cellDoubleClick: (...a) => handlerImpl.current.cellDoubleClick(...a),
+    cellContextMenu: (...a) => handlerImpl.current.cellContextMenu(...a),
+    rownumMouseDown: (...a) => handlerImpl.current.rownumMouseDown(...a),
+    rownumMouseEnter: (...a) => handlerImpl.current.rownumMouseEnter(...a),
+    rownumContextMenu: (...a) => handlerImpl.current.rownumContextMenu(...a),
+  }), []);
+
   // ---------------------------------------------------------------- keyboard
   const handleKey = (e: React.KeyboardEvent) => {
     if (editing || e.target !== scrollRef.current) return;
@@ -521,7 +551,6 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
   };
 
   // ---------------------------------------------------------------- context menu
-  const [menuCtx, setMenuCtx] = useState<GridMenuContext | null>(null);
   const menuItems = (): MenuItem[] => {
     const ctx = menuCtx;
     if (!ctx) return [];
@@ -694,7 +723,8 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
                   widths={widths}
                   total={layout.total}
                   rownumW={rownumW}
-                  visibleD={visibleD}
+                  vc0={vc0}
+                  vc1={vc1}
                   rowLabel={rowOffset + r + 1}
                   selC0={inRows ? range.c0 : -1}
                   selC1={inRows ? range.c1 : -1}
@@ -703,13 +733,7 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
                   rowCls={rowClassName?.(r)}
                   cellClassName={cellClassName}
                   renderCellOverride={renderCellOverride}
-                  onCellMouseDown={cellMouseDown}
-                  onCellMouseEnter={cellMouseEnter}
-                  onCellDoubleClick={cellDoubleClick}
-                  onCellContextMenu={(c, e) => { setMenuCtx({ kind: 'cell', col: c, row: r, selection: null }); onCellContextMenu?.({ row: r, col: c }, e); }}
-                  onRownumMouseDown={rownumMouseDown}
-                  onRownumMouseEnter={rownumMouseEnter}
-                  onRownumContextMenu={() => setMenuCtx({ kind: 'rownum', col: order[0], row: r, selection: null })}
+                  h={handlers}
                 />
               );
             })}
@@ -754,6 +778,16 @@ export const DataGrid = memo(function DataGrid(props: DataGridProps) {
   );
 });
 
+interface RowHandlers {
+  cellMouseDown: (r: number, d: number, e: React.MouseEvent) => void;
+  cellMouseEnter: (r: number, d: number) => void;
+  cellDoubleClick: (r: number, c: number) => void;
+  cellContextMenu: (r: number, c: number, e: React.MouseEvent) => void;
+  rownumMouseDown: (r: number, e: React.MouseEvent) => void;
+  rownumMouseEnter: (r: number) => void;
+  rownumContextMenu: (r: number) => void;
+}
+
 interface GridRowProps {
   r: number;
   top: number;
@@ -764,7 +798,8 @@ interface GridRowProps {
   widths: number[];
   total: number;
   rownumW: number;
-  visibleD: number[];
+  vc0: number;
+  vc1: number;
   rowLabel: number;
   selC0: number;
   selC1: number;
@@ -773,18 +808,40 @@ interface GridRowProps {
   rowCls?: string;
   cellClassName?: (row: number, col: number) => string | undefined;
   renderCellOverride?: (row: number, col: number, value: CellValue) => ReactNode | undefined;
-  onCellMouseDown: (r: number, d: number, e: React.MouseEvent) => void;
-  onCellMouseEnter: (r: number, d: number) => void;
-  onCellDoubleClick: (r: number, c: number) => void;
-  onCellContextMenu: (c: number, e: React.MouseEvent) => void;
-  onRownumMouseDown: (r: number, e: React.MouseEvent) => void;
-  onRownumMouseEnter: (r: number) => void;
-  onRownumContextMenu: () => void;
+  h: RowHandlers;
 }
 
 const GridRow = memo(function GridRow(p: GridRowProps) {
-  const { r, row } = p;
+  const { r, row, h } = p;
   if (!row) return null;
+  const cells: ReactNode[] = [];
+  for (let d = p.vc0; d <= p.vc1; d++) {
+    const ci = p.order[d];
+    const c = p.columns[ci];
+    const v = row[ci];
+    const inSel = d >= p.selC0 && d <= p.selC1;
+    const isCursor = d === p.cursorD;
+    const custom = p.renderCellOverride?.(r, ci, v);
+    cells.push(
+      <div
+        key={ci}
+        className={cn(
+          'absolute top-0 flex h-full items-center overflow-hidden border-r border-grid-line px-2 whitespace-nowrap text-fg',
+          isNumericType(c.typeName) && 'justify-end',
+          p.cellClassName?.(r, ci),
+          inSel && 'bg-selection',
+          isCursor && 'shadow-[inset_0_0_0_2px_var(--accent)]',
+        )}
+        style={{ left: p.starts[d], width: p.widths[ci] ?? 120 }}
+        onMouseDown={(e) => h.cellMouseDown(r, d, e)}
+        onMouseEnter={() => h.cellMouseEnter(r, d)}
+        onDoubleClick={() => h.cellDoubleClick(r, ci)}
+        onContextMenu={(e) => h.cellContextMenu(r, ci, e)}
+      >
+        <span className="min-w-0 truncate">{custom !== undefined ? custom : renderCell(v, c.typeName)}</span>
+      </div>,
+    );
+  }
   return (
     <div
       className={cn('absolute left-0 border-b border-grid-line', r % 2 === 1 ? 'bg-grid-alt' : 'bg-bg', p.rowCls)}
@@ -797,39 +854,13 @@ const GridRow = memo(function GridRow(p: GridRowProps) {
           p.fullRow && 'bg-accent-soft font-medium',
         )}
         style={{ width: p.rownumW }}
-        onMouseDown={(e) => p.onRownumMouseDown(r, e)}
-        onMouseEnter={() => p.onRownumMouseEnter(r)}
-        onContextMenu={p.onRownumContextMenu}
+        onMouseDown={(e) => h.rownumMouseDown(r, e)}
+        onMouseEnter={() => h.rownumMouseEnter(r)}
+        onContextMenu={() => h.rownumContextMenu(r)}
       >
         {p.rowLabel}
       </div>
-      {p.visibleD.map((d) => {
-        const ci = p.order[d];
-        const c = p.columns[ci];
-        const v = row[ci];
-        const inSel = d >= p.selC0 && d <= p.selC1;
-        const isCursor = d === p.cursorD;
-        const custom = p.renderCellOverride?.(r, ci, v);
-        return (
-          <div
-            key={ci}
-            className={cn(
-              'absolute top-0 flex h-full items-center overflow-hidden border-r border-grid-line px-2 whitespace-nowrap text-fg',
-              isNumericType(c.typeName) && 'justify-end',
-              p.cellClassName?.(r, ci),
-              inSel && 'bg-selection',
-              isCursor && 'shadow-[inset_0_0_0_2px_var(--accent)]',
-            )}
-            style={{ left: p.starts[d], width: p.widths[ci] ?? 120 }}
-            onMouseDown={(e) => p.onCellMouseDown(r, d, e)}
-            onMouseEnter={() => p.onCellMouseEnter(r, d)}
-            onDoubleClick={() => p.onCellDoubleClick(r, ci)}
-            onContextMenu={(e) => p.onCellContextMenu(ci, e)}
-          >
-            <span className="min-w-0 truncate">{custom !== undefined ? custom : renderCell(v, c.typeName)}</span>
-          </div>
-        );
-      })}
+      {cells}
     </div>
   );
 });

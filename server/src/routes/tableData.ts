@@ -131,9 +131,8 @@ export async function loadTableInfo(connId: string, db: string, schema: string, 
   else if (kind === 'materialized_view') readOnlyReason = 'Materialized views are read-only — refresh the view to update its data.';
   else if (!hasKey && (upd & 4) !== 0) {
     readOnlyReason =
-      `${name} has no primary key (or NOT NULL unique index), so existing rows can't be identified safely for UPDATE / DELETE` +
-      (canInsert ? ' — you can still add new rows.' : '.') +
-      ' (ctid is not used: it changes on every update and after VACUUM FULL, so it could hit the wrong row.)';
+      `${name} has no primary key or NOT NULL unique index, so existing rows can't be identified safely for editing or deletion ` +
+      `(ctid isn't used: it changes on every update).` + (canInsert ? ' You can still add new rows.' : '');
   } else if ((upd & 4) === 0 && (upd & 8) === 0) {
     readOnlyReason = `This ${KIND_LABEL[kind]} is not updatable.`;
   } else if (!rel.can_update && !rel.can_insert && !rel.can_delete) {

@@ -45,7 +45,7 @@ interface Params {
 const KIND_LABEL: Record<TableInfo['kind'], string> = {
   table: 'Table', partitioned_table: 'Partitioned table', view: 'View', materialized_view: 'Materialized view', foreign_table: 'Foreign table',
 };
-const PAGE_SIZES = [50, 100, 200, 500, 1000, 5000];
+const PAGE_SIZES = [50, 100, 200, 500, 1000, 5000, 20000, 100000];
 
 function editorSpec(col: TableColumn, value: CellValue): CellEditorSpec {
   const nullable = col.nullable;
@@ -691,6 +691,7 @@ export default function TableDataTab({ tab, active }: TabProps) {
             tableName={target}
             loading={rowsQ.isFetching}
             describeRow={describeRow}
+            scrollKey={`${queryKey}|${page}|${pageSize}`}
             emptyMessage={
               <span className="flex flex-col items-center gap-2">
                 <span>{activeFilterCount ? 'No rows match the filter' : 'This table is empty'}</span>
@@ -757,7 +758,7 @@ export default function TableDataTab({ tab, active }: TabProps) {
           className="w-[104px] [&_select]:h-5 [&_select]:py-0 [&_select]:text-[11px]"
           value={String(pageSize)}
           onChange={(e) => guard(() => { setParams({ pageSize: Number(e.target.value) }); setPage(0); })}
-          options={[...new Set([...PAGE_SIZES, settingsPageSize])].sort((a, b) => a - b).map((n) => ({ value: String(n), label: `${n} / page` }))}
+          options={[...new Set([...PAGE_SIZES, settingsPageSize])].sort((a, b) => a - b).map((n) => ({ value: String(n), label: `${n >= 10000 ? `${n / 1000}k` : n} / page` }))}
         />
         <span className="w-14 text-right tabular-nums">{rowsQ.data ? formatDuration(rowsQ.data.durationMs) : ''}</span>
         {selRows > 1 && <span className="text-accent tabular-nums">{selRows.toLocaleString()} selected</span>}

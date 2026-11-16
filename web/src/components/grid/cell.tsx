@@ -1,4 +1,5 @@
 import type { CellValue } from '@shared/types';
+import { cn } from '@/lib/cn';
 
 const NUMERIC = new Set(['int2', 'int4', 'int8', 'float4', 'float8', 'numeric', 'money', 'oid', 'xid', 'cid']);
 const JSONISH = new Set(['json', 'jsonb']);
@@ -61,8 +62,8 @@ export function renderCell(v: CellValue, typeName?: string) {
   }
   if (typeof v === 'boolean') {
     return (
-      <span className={v ? 'text-success' : 'text-danger'}>
-        <span className="mr-1 inline-block w-2.5 text-center">{v ? '✓' : '✕'}</span>
+      <span className={v ? 'text-success' : 'text-muted'}>
+        <span className={cn('mr-1 inline-block w-2.5 text-center', !v && 'text-danger/70')}>{v ? '✓' : '✕'}</span>
         {v ? 'true' : 'false'}
       </span>
     );

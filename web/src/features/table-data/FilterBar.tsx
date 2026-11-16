@@ -11,12 +11,12 @@ export const OPS: { value: FilterOp; label: string }[] = [
   { value: '>=', label: '≥' },
   { value: '<', label: '<' },
   { value: '<=', label: '≤' },
-  { value: 'ILIKE', label: 'ILIKE (contains, any case)' },
+  { value: 'ILIKE', label: 'ILIKE' },
   { value: 'LIKE', label: 'LIKE' },
   { value: 'NOT ILIKE', label: 'NOT ILIKE' },
   { value: 'NOT LIKE', label: 'NOT LIKE' },
-  { value: 'IN', label: 'IN (list)' },
-  { value: 'NOT IN', label: 'NOT IN (list)' },
+  { value: 'IN', label: 'IN' },
+  { value: 'NOT IN', label: 'NOT IN' },
   { value: 'BETWEEN', label: 'BETWEEN' },
   { value: 'IS NULL', label: 'IS NULL' },
   { value: 'IS NOT NULL', label: 'IS NOT NULL' },
@@ -121,7 +121,7 @@ export function FilterBar({
                   <span className="w-9 text-right text-[10.5px] font-semibold text-subtle">{i === 0 ? 'WHERE' : 'AND'}</span>
                   <Checkbox checked={c.enabled !== false} onCheckedChange={(v) => setCond(i, { enabled: v })} />
                   <Select size="sm" className="w-44" value={c.column} onChange={(e) => setCond(i, { column: e.target.value })} options={colOptions} />
-                  <Select size="sm" className="w-40" value={c.op} onChange={(e) => setCond(i, { op: e.target.value as FilterOp })} options={OPS} />
+                  <Select size="sm" className="w-32" value={c.op} onChange={(e) => setCond(i, { op: e.target.value as FilterOp })} options={OPS} />
                   {noValue ? null : c.op === 'BETWEEN' ? (
                     <>
                       {valueInput(c.values?.[0] ?? '', (v) => setCond(i, { values: [v, c.values?.[1] ?? ''] }), 'from', 'w-32')}
