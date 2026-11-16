@@ -42,7 +42,6 @@ export default function DashboardTab({ tab, active }: TabProps) {
 
   const live = active && !paused;
   const snaps = useLiveSnapshots(connId, database, live, intervalMs);
-  const now = useNow(active);
 
   if (!connId) {
     return <EmptyState icon={<Unplug size={28} />} title="No connection" description="Open the dashboard from a connected server." />;
@@ -61,7 +60,6 @@ export default function DashboardTab({ tab, active }: TabProps) {
     snaps.refresh();
     queryClient.invalidateQueries({ queryKey: ['monitor', connId] });
   };
-  const ago = snaps.updatedAt ? Math.max(0, now - snaps.updatedAt) : null;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-bg">
@@ -94,16 +92,7 @@ export default function DashboardTab({ tab, active }: TabProps) {
           })}
         </nav>
         <div className="flex-1" />
-        <Tooltip content={snaps.error ? `Last poll failed: ${snaps.error}` : paused ? 'Auto-refresh paused' : active ? 'Live — polling while this tab is visible' : 'Paused while the tab is hidden'}>
-          <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11.5px] text-muted">
-            <span className="relative flex h-2 w-2">
-              {live && !snaps.error && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />}
-              <span className={cn('relative inline-flex h-2 w-2 rounded-full', snaps.error ? 'bg-danger' : live ? 'bg-success' : 'bg-subtle')} />
-            </span>
-            {snaps.error ? 'Error' : paused ? 'Paused' : 'Live'}
-            {ago != null && <span className="text-subtle tabular-nums">· {ago < 1500 ? 'just now' : `${formatSpan(ago)} ago`}</span>}
-          </span>
-        </Tooltip>
+        <LiveIndicator live={live} paused={paused} active={active} error={snaps.error} updatedAt={snaps.updatedAt} />
         <Select
           size="sm"
           className="w-[84px] shrink-0"
@@ -127,5 +116,22 @@ export default function DashboardTab({ tab, active }: TabProps) {
         {section === 'databases' && <DatabasesView {...props} />}
       </div>
     </div>
+  );
+}
+
+function LiveIndicator({ live, paused, active, error, updatedAt }: { live: boolean; paused: boolean; active: boolean; error?: string; updatedAt?: number }) {
+  const now = useNow(active);
+  const ago = updatedAt ? Math.max(0, now - updatedAt) : null;
+  return (
+    <Tooltip content={error ? `Last poll failed: ${error}` : paused ? 'Auto-refresh paused' : active ? 'Live — polling while this tab is visible' : 'Paused while the tab is hidden'}>
+      <span className="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11.5px] text-muted">
+        <span className="relative flex h-2 w-2">
+          {live && !error && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />}
+          <span className={cn('relative inline-flex h-2 w-2 rounded-full', error ? 'bg-danger' : live ? 'bg-success' : 'bg-subtle')} />
+        </span>
+        {error ? 'Error' : paused ? 'Paused' : 'Live'}
+        {ago != null && <span className="text-subtle tabular-nums">· {ago < 1500 ? 'just now' : `${formatSpan(ago)} ago`}</span>}
+      </span>
+    </Tooltip>
   );
 }
