@@ -337,9 +337,11 @@ function ConnectionNode({ conn, q }: { conn: ConnectionConfig; q: string }) {
   ];
 
   const expanded = useTree((s) => s.expanded);
+  const activeDb = useWorkspace((s) => (s.activeConnId === conn.id ? s.activeDb : null));
   const dbs = (st?.info?.databases.filter((d) => !d.isTemplate && d.allowConn) ?? [])
-    // while filtering, only databases that are open (and may contain matches) or whose name matches
-    .filter((d) => !q || expanded.has(`d:${conn.id}:${d.name}`) || d.name.toLowerCase().includes(q));
+    // while filtering: databases that are open, the connection's default / active database
+    // (searched even if never expanded), or whose name matches
+    .filter((d) => !q || expanded.has(`d:${conn.id}:${d.name}`) || d.name === conn.database || d.name === activeDb || d.name.toLowerCase().includes(q));
   return (
     <div role="group">
       <Row
@@ -371,13 +373,15 @@ function DatabaseNode({ conn, db, size, q }: { conn: ConnectionConfig; db: strin
   const active = useWorkspace((s) => s.activeConnId === conn.id && s.activeDb === db);
   const setActiveDb = useWorkspace((s) => s.setActiveDb);
   const isDefault = conn.database === db;
+  // While filtering, search inside the default/active database even if it was never expanded.
+  const open = node.open || (!!q && (isDefault || active));
   return (
     <div role="group">
       <Row
         nodeKey={key}
         depth={1}
         hasChildren
-        open={node.open}
+        open={open}
         onToggle={(f) => { node.toggle(f); setActiveDb(conn.id, db); }}
         onActivate={() => useWorkspace.getState().newQuery({ connId: conn.id, database: db })}
         active={active}
@@ -387,7 +391,7 @@ function DatabaseNode({ conn, db, size, q }: { conn: ConnectionConfig; db: strin
         title={`${db}${size != null ? ` · ${formatBytes(size)}` : ''}\nEnter: new query`}
         menu={() => databaseMenu(conn.id, db)}
       />
-      {node.open && (
+      {open && (
         <>
           <SchemasFolder conn={conn} db={db} q={q} />
           <ExtensionsFolder conn={conn} db={db} q={q} />

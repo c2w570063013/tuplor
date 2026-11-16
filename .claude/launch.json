@@ -11,13 +11,12 @@
       "port": 5173
     },
     {
-      "name": "pgstudio-grid",
-      "runtimeExecutable": "sh",
+      "name": "pgstudio-prod",
+      "runtimeExecutable": "npm",
       "runtimeArgs": [
-        "-c",
-        "PORT=5601 API_PORT=5601 WEB_PORT=5701 npm run dev"
+        "start"
       ],
-      "port": 5701
+      "port": 5555
     }
   ]
 }
