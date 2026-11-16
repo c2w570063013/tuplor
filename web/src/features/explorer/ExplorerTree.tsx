@@ -150,7 +150,7 @@ const Row = memo(function Row({
       </span>
       <span className="-ml-0.5 flex shrink-0 items-center">{icon}</span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
-      {extra != null && extra !== '' && <span className="shrink-0 text-[11px] text-subtle tabular-nums">{extra}</span>}
+      {extra != null && extra !== '' && <span className="max-w-[45%] shrink-0 truncate text-[11px] text-subtle tabular-nums">{extra}</span>}
     </div>
   );
   return menu ? <ContextMenu items={menu}>{body}</ContextMenu> : body;
