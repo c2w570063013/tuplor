@@ -1,0 +1,35 @@
+/* ER diagram: map React Flow's theme variables onto PG Studio design tokens. */
+.erd-flow {
+  --xy-background-color: var(--bg);
+  --xy-background-pattern-color: var(--border-strong);
+  --xy-minimap-background-color: var(--elevated);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--sunken) 70%, transparent);
+  --xy-minimap-mask-stroke-color: var(--accent);
+  --xy-minimap-mask-stroke-width: 1;
+  --xy-minimap-node-background-color: var(--border-strong);
+  --xy-edge-label-background-color: var(--elevated);
+  --xy-edge-label-color: var(--fg);
+  --xy-attribution-background-color: transparent;
+  background: var(--bg);
+}
+.erd-flow .react-flow__node {
+  cursor: default;
+}
+.erd-flow .react-flow__node.dragging {
+  cursor: grabbing;
+}
+.erd-flow .react-flow__node.dragging .erd-node {
+  box-shadow: var(--shadow);
+}
+.erd-flow .react-flow__minimap {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.erd-flow .react-flow__edge {
+  cursor: default;
+}
+.erd-flow .react-flow__attribution {
+  display: none;
+}
