@@ -130,8 +130,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  border-color: var(--border);
+/* In a layer so Tailwind border-color utilities (border-accent, focus:border-…) can override it. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 }
 
 ::selection {
