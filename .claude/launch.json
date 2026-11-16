@@ -4,8 +4,20 @@
     {
       "name": "pgstudio",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "pgstudio-grid",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "PORT=5601 API_PORT=5601 WEB_PORT=5701 npm run dev"
+      ],
+      "port": 5701
     }
   ]
 }
