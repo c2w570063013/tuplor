@@ -95,6 +95,21 @@ export async function closeConnection(connId: string): Promise<void> {
   await Promise.all(tasks);
 }
 
+/** Close the pool for one (connection, database) — e.g. before DROP DATABASE. Sessions on it are closed too. */
+export async function closePool(connId: string, database: string): Promise<void> {
+  const key = `${connId}\u0000${database}`;
+  const pool = pools.get(key);
+  const tasks: Promise<unknown>[] = [];
+  if (pool) {
+    pools.delete(key);
+    tasks.push(pool.end().catch(() => {}));
+  }
+  for (const [id, s] of sessions) {
+    if (s.connId === connId && s.database === database) tasks.push(closeSession(id));
+  }
+  await Promise.all(tasks);
+}
+
 /** Run a query on the pool and return rows as objects. Use for metadata queries. */
 export async function queryRows<T = Record<string, any>>(
   connId: string,
