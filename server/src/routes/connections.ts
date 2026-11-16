@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import pg from 'pg';
 import type { ConnectionConfig, ConnectionTestResult, DatabaseInfo, ServerInfo } from '../../../shared/types';
-import { clientConfig, closeConnection, queryRows } from '../db';
+import { closeConnection, connectClient, queryRows } from '../db';
 import { toQueryError, HttpError } from '../lib/errors';
 import { deleteConnection, getConnectionWithSecret, listConnections, saveConnection } from '../store';
 
@@ -30,16 +30,16 @@ export default async function connectionsRoutes(app: FastifyInstance) {
       const stored = getConnectionWithSecret(cfg.id);
       cfg = { ...cfg, password: stored?.password };
     }
-    const client = new pg.Client(clientConfig(cfg));
     const t0 = performance.now();
+    let client: pg.Client | undefined;
     try {
-      await client.connect();
+      client = await connectClient(cfg);
       const r = await client.query('SHOW server_version');
       return { ok: true, serverVersion: r.rows[0].server_version, latencyMs: Math.round(performance.now() - t0) };
     } catch (e) {
       return { ok: false, error: toQueryError(e).message };
     } finally {
-      client.end().catch(() => {});
+      client?.end().catch(() => {});
     }
   });
 

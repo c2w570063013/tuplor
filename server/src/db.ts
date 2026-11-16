@@ -30,11 +30,32 @@ export const textTypes = {
   },
 };
 
+/**
+ * sslmode=prefer (libpq's default) means "try SSL, fall back to plaintext if the server has none".
+ * node-pg has no such mode, so we try SSL first and remember the host:port endpoints that refused it.
+ */
+const noSslEndpoints = new Set<string>();
+const endpoint = (c: ConnectionConfig) => `${c.host}:${c.port}`;
+
+export function isSslUnsupportedError(e: unknown): boolean {
+  return /does not support SSL/i.test((e as Error)?.message ?? '');
+}
+
+/** If `e` is a prefer-mode SSL refusal, remember the endpoint and return true (caller should retry). */
+function shouldRetryWithoutSsl(c: ConnectionConfig, e: unknown): boolean {
+  if (c.sslMode !== 'prefer' || !isSslUnsupportedError(e) || noSslEndpoints.has(endpoint(c))) return false;
+  noSslEndpoints.add(endpoint(c));
+  return true;
+}
+
 export function clientConfig(c: ConnectionConfig, database?: string): pg.ClientConfig {
-  let ssl: pg.ClientConfig['ssl'] = undefined;
+  let ssl: pg.ClientConfig['ssl'] = false;
   switch (c.sslMode) {
-    case 'require':
     case 'prefer':
+      // Unix sockets never use SSL; otherwise try SSL unless this endpoint already refused it.
+      if (!c.host.startsWith('/') && !noSslEndpoints.has(endpoint(c))) ssl = { rejectUnauthorized: false };
+      break;
+    case 'require':
       ssl = { rejectUnauthorized: false };
       break;
     case 'verify-ca':
@@ -59,6 +80,49 @@ export function clientConfig(c: ConnectionConfig, database?: string): pg.ClientC
   };
 }
 
+/** Open a standalone client, applying the sslmode=prefer fallback. Caller must `end()` it. */
+export async function connectClient(c: ConnectionConfig, database?: string): Promise<pg.Client> {
+  const client = new pg.Client(clientConfig(c, database));
+  try {
+    await client.connect();
+    return client;
+  } catch (e) {
+    client.end().catch(() => {});
+    if (!shouldRetryWithoutSsl(c, e)) throw e;
+    const plain = new pg.Client(clientConfig(c, database));
+    await plain.connect();
+    return plain;
+  }
+}
+
+/** pg.Pool that applies the sslmode=prefer fallback to every new physical connection. */
+class PreferSslPool extends pg.Pool {
+  constructor(private conn: ConnectionConfig, database: string) {
+    super({ ...clientConfig(conn, database), max: 6, idleTimeoutMillis: 60_000 });
+    // New clients read the (possibly updated) SSL decision at construction time.
+    const self = this as any;
+    const Base = self.Client as typeof pg.Client;
+    self.Client = class extends Base {
+      constructor(cfg: pg.ClientConfig) {
+        // pg-pool stores `password` as a non-enumerable property, so copy it explicitly.
+        super(conn.sslMode === 'prefer' && noSslEndpoints.has(endpoint(conn)) ? { ...cfg, password: cfg.password, ssl: false } : cfg);
+      }
+    };
+  }
+
+  // pool.query() goes through connect(callback), so overriding connect covers every path.
+  connect(cb?: any): any {
+    if (cb) {
+      return super.connect(((err: Error | undefined, client: any, done: any) =>
+        err && shouldRetryWithoutSsl(this.conn, err) ? super.connect(cb) : cb(err, client, done)) as any);
+    }
+    return super.connect().catch((e) => {
+      if (shouldRetryWithoutSsl(this.conn, e)) return super.connect();
+      throw e;
+    });
+  }
+}
+
 function requireConn(connId: string): ConnectionConfig {
   const c = getConnectionWithSecret(connId);
   if (!c) throw new HttpError(404, `Unknown connection ${connId}`);
@@ -73,7 +137,7 @@ export function getPool(connId: string, database?: string): pg.Pool {
   const key = `${connId}\u0000${db}`;
   let pool = pools.get(key);
   if (!pool) {
-    pool = new pg.Pool({ ...clientConfig(conn, db), max: 6, idleTimeoutMillis: 60_000 });
+    pool = new PreferSslPool(conn, db);
     pool.on('error', () => { /* idle client errors: ignore, pool replaces them */ });
     pools.set(key, pool);
   }
@@ -173,9 +237,8 @@ export async function getSession(sessionId: string, connId: string, database: st
   }
   if (existing) await closeSession(sessionId);
   const conn = requireConn(connId);
-  const client = new pg.Client(clientConfig(conn, database));
+  const client = await connectClient(conn, database);
   client.on('error', () => { sessions.delete(sessionId); });
-  await client.connect();
   const s: Session = { connId, database, client, lastUsed: Date.now(), busy: Promise.resolve() };
   sessions.set(sessionId, s);
   return s;

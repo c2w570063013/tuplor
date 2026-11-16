@@ -18,5 +18,6 @@ export function toQueryError(e: any): QueryError {
   if (e.severity) err.severity = e.severity;
   if (e.code === 'ECONNREFUSED') err.message = `Connection refused (${e.address}:${e.port}). Is the server running?`;
   if (e.code === 'ENOTFOUND') err.message = `Host not found: ${e.hostname}`;
+  if (/does not support SSL/i.test(err.message)) err.message += ' — set SSL mode to “Prefer” or “Disable” for this server.';
   return err;
 }

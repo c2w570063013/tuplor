@@ -14,7 +14,7 @@ import type {
 } from '../../../shared/backup';
 import type { ConnectionConfig } from '../../../shared/types';
 import pg from 'pg';
-import { clientConfig, queryRows } from '../db';
+import { connectClient, queryRows } from '../db';
 import { HttpError } from '../lib/errors';
 import { DATA_DIR, readJson, writeJson } from '../lib/paths';
 import { quoteIdent } from '../lib/sql';
@@ -678,8 +678,7 @@ async function startRestore(conn: ConnectionConfig, o: RestoreOptions): Promise<
 }
 
 async function oneOffQuery<T>(conn: ConnectionConfig, db: string, sql: string): Promise<T[]> {
-  const client = new pg.Client(clientConfig(conn, db));
-  await client.connect();
+  const client = await connectClient(conn, db);
   try {
     return (await client.query(sql)).rows as T[];
   } finally {
