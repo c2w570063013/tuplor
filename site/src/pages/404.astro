@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Logo from '../components/Logo.astro';
+import { SITE } from '../config';
+import { homePath } from '../i18n';
+---
+<Layout lang="en" noindex>
+  <main id="main" class="notfound">
+    <Logo size={56} />
+    <h1>404</h1>
+    <p class="muted">This page doesn’t exist. · 找不到這個頁面。</p>
+    <p><a class="btn btn-primary" href={homePath('en')}>{SITE.name}</a> <a class="btn btn-ghost" href={homePath('zh-TW')}>繁體中文</a></p>
+  </main>
+</Layout>
