@@ -18,15 +18,16 @@
   --fg: #e9ecf6;
   --muted: #9ba3bd;
   --subtle: #6c748f;
-  --accent: #7c8cff;
-  --accent-strong: #5b5ff0;
+  --accent: #818cf8;
+  --accent-strong: #6366f1;
+  --teal: #2dd4bf;
   --accent-fg: #ffffff;
-  --accent-soft: rgb(124 140 255 / 0.13);
+  --accent-soft: rgb(129 140 248 / 0.13);
   --success: #34d399;
   --warn: #fbbf24;
   --shadow: 0 30px 80px -20px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.04);
-  --glow-1: rgb(91 95 240 / 0.38);
-  --glow-2: rgb(34 211 238 / 0.14);
+  --glow-1: rgb(99 102 241 / 0.36);
+  --glow-2: rgb(20 184 166 / 0.16);
   color-scheme: dark;
 }
 :root[data-theme='light'] {
@@ -40,14 +41,15 @@
   --muted: #4f5772;
   --subtle: #7d849c;
   --accent: #4f46e5;
-  --accent-strong: #4338ca;
+  --accent-strong: #4f46e5;
+  --teal: #0d9488;
   --accent-fg: #ffffff;
   --accent-soft: rgb(79 70 229 / 0.08);
   --success: #059669;
   --warn: #b45309;
   --shadow: 0 30px 70px -25px rgb(30 35 70 / 0.35), 0 0 0 1px rgb(15 20 40 / 0.06);
-  --glow-1: rgb(99 102 241 / 0.20);
-  --glow-2: rgb(34 211 238 / 0.12);
+  --glow-1: rgb(99 102 241 / 0.18);
+  --glow-2: rgb(20 184 166 / 0.14);
   color-scheme: light;
 }
 @media (min-width: 640px) { :root { --gutter: 24px; } }
@@ -93,11 +95,11 @@ code, kbd, pre { font-family: var(--mono); }
 }
 .btn:active { transform: translateY(1px); }
 .btn-primary {
-  background: linear-gradient(180deg, #6f7bff, var(--accent-strong));
+  background: linear-gradient(115deg, #0f9f94 -10%, #5a5ef0 55%, #6366f1);
   color: var(--accent-fg);
-  box-shadow: 0 10px 30px -10px rgb(91 95 240 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.22);
+  box-shadow: 0 10px 30px -10px rgb(79 90 230 / 0.75), inset 0 1px 0 rgb(255 255 255 / 0.22);
 }
-.btn-primary:hover { background: linear-gradient(180deg, #7d88ff, #5153e6); }
+.btn-primary:hover { background: linear-gradient(115deg, #13b3a5 -10%, #6468f5 55%, #7073f7); }
 .btn-ghost { background: var(--panel); border-color: var(--border-strong); }
 .btn-ghost:hover { border-color: var(--accent); }
 .btn-lg { height: 60px; padding: 0 24px; font-size: 17px; border-radius: 14px; }
@@ -167,7 +169,7 @@ h1 { margin-top: 22px; display: flex; flex-direction: column; align-items: cente
 }
 .h1-lead, .h1-accent { font-size: clamp(22px, 3.6vw, 34px); font-weight: 700; letter-spacing: -0.025em; }
 .h1-lead { margin-top: 10px; }
-.h1-accent { background: linear-gradient(90deg, var(--accent), #22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.h1-accent { background: linear-gradient(90deg, var(--teal), var(--accent) 85%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .lead { margin-top: 18px; max-width: 620px; font-size: clamp(16px, 2vw, 19px); color: var(--muted); }
 .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
 .hero-note { margin-top: 18px; font-size: 14px; color: var(--subtle); }
@@ -193,7 +195,7 @@ h1 { margin-top: 22px; display: flex; flex-direction: column; align-items: cente
   flex: none; padding: 7px 14px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--muted); white-space: nowrap;
 }
 .tabs [role='tab']:hover { color: var(--fg); }
-.tabs [role='tab'][aria-selected='true'] { color: var(--accent-fg); background: var(--accent-strong); box-shadow: 0 6px 18px -8px rgb(91 95 240 / .9); }
+.tabs [role='tab'][aria-selected='true'] { color: var(--accent-fg); background: var(--accent-strong); box-shadow: 0 6px 18px -8px rgb(99 102 241 / .9); }
 .window {
   border-radius: 14px; overflow: hidden; background: var(--panel);
   border: 1px solid var(--border-strong); box-shadow: var(--shadow);
@@ -261,7 +263,7 @@ kbd {
 .step { position: relative; padding: 26px 24px 24px; display: flex; flex-direction: column; align-items: flex-start; }
 .step-n {
   display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%;
-  font-weight: 800; color: var(--accent-fg); background: var(--accent-strong);
+  font-weight: 800; color: var(--accent-fg); background: linear-gradient(135deg, #14b8a6, #6366f1);
 }
 .step h3 { margin-top: 14px; font-size: 19px; }
 .step p { margin-top: 8px; color: var(--muted); font-size: 15px; }

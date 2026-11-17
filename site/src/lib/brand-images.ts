@@ -48,7 +48,7 @@ export async function ogImage(): Promise<Buffer> {
   let cx = 72;
   const chips = [
     { text: `Free & open source · ${SITE.license}`, fill: '#1c2033', stroke: '#353c5c', color: '#c7cdf5' },
-    { text: 'macOS · Apple Silicon', fill: '#4f46e5', stroke: '#4f46e5', color: '#ffffff' },
+    { text: 'macOS · Apple Silicon', fill: '#5a5ef0', stroke: '#5a5ef0', color: '#ffffff' },
   ].map((c) => {
     const w = Math.round(c.text.length * chipFs * 0.58 + 32);
     const out = `<rect x="${cx}" y="502" width="${w}" height="44" rx="22" fill="${c.fill}" stroke="${c.stroke}"/>` +
@@ -60,8 +60,8 @@ export async function ogImage(): Promise<Buffer> {
   const bg = `
   <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="g1" cx="0.15" cy="0.1" r="0.9"><stop offset="0" stop-color="#4f46e5" stop-opacity="0.55"/><stop offset="1" stop-color="#0b0d12" stop-opacity="0"/></radialGradient>
-      <radialGradient id="g2" cx="0.95" cy="0.95" r="0.7"><stop offset="0" stop-color="#22d3ee" stop-opacity="0.22"/><stop offset="1" stop-color="#0b0d12" stop-opacity="0"/></radialGradient>
+      <radialGradient id="g1" cx="0.15" cy="0.1" r="0.9"><stop offset="0" stop-color="#6366f1" stop-opacity="0.5"/><stop offset="1" stop-color="#0b0d12" stop-opacity="0"/></radialGradient>
+      <radialGradient id="g2" cx="0.95" cy="0.95" r="0.7"><stop offset="0" stop-color="#14b8a6" stop-opacity="0.3"/><stop offset="1" stop-color="#0b0d12" stop-opacity="0"/></radialGradient>
       <filter id="sh" x="-10%" y="-10%" width="130%" height="130%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.55"/></filter>
     </defs>
     <rect width="${W}" height="${H}" fill="#0b0d12"/>
