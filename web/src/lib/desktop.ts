@@ -6,16 +6,30 @@
  *
  * Usage (once, at app start):
  *   useEffect(() => initDesktopBridge({ 'new-query': () => …, … }), []);
+ *
+ * initDesktopBridge also starts the update notice (a toast when a newer GitHub release exists).
  */
+import { toast } from 'sonner';
 
 export type DesktopCommand = 'new-query' | 'new-connection' | 'close-tab' | 'open-settings' | 'toggle-sidebar' | 'command-palette';
 
 export type DesktopHandlers = Partial<Record<DesktopCommand, () => void>>;
 
+/** A newer GitHub release than the running app (see desktop/src/main.cjs `checkForUpdate`). */
+export interface DesktopUpdateInfo {
+  version: string;
+  current: string;
+  /** Release page on github.com. */
+  url: string;
+  name?: string;
+}
+
 export interface PgStudioDesktop {
   isDesktop: true;
   platform: string;
   onCommand(cb: (command: string) => void): () => void;
+  /** Absent in desktop builds older than the update notice. */
+  checkForUpdate?(): Promise<DesktopUpdateInfo | null>;
 }
 
 declare global {
@@ -38,5 +52,39 @@ export const isMacDesktop = isDesktop && desktop?.platform === 'darwin';
  */
 export function initDesktopBridge(handlers: DesktopHandlers): () => void {
   if (!desktop) return () => {};
-  return desktop.onCommand((command) => handlers[command as DesktopCommand]?.());
+  const offCommands = desktop.onCommand((command) => handlers[command as DesktopCommand]?.());
+  const offUpdate = initUpdateNotice();
+  return () => {
+    offCommands();
+    offUpdate();
+  };
+}
+
+/**
+ * Shortly after start, ask the desktop shell whether a newer release exists (the shell checks
+ * GitHub at most once a day and stays silent offline) and show a non-blocking toast with a
+ * "Download" button that opens the release page in the default browser. No auto-install.
+ */
+function initUpdateNotice(): () => void {
+  const bridge = desktop;
+  if (!bridge?.checkForUpdate) return () => {};
+  let cancelled = false;
+  const timer = setTimeout(() => {
+    bridge
+      .checkForUpdate?.()
+      .then((u) => {
+        if (cancelled || !u) return;
+        toast.info(`Update available: v${u.version}`, {
+          id: 'desktop-update',
+          description: `You're on v${u.current}. Download the new version from GitHub.`,
+          duration: Infinity,
+          action: { label: 'Download', onClick: () => window.open(u.url, '_blank') },
+        });
+      })
+      .catch(() => {});
+  }, 3000);
+  return () => {
+    cancelled = true;
+    clearTimeout(timer);
+  };
 }

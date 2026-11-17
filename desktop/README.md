@@ -15,16 +15,21 @@ Electron main (src/main.cjs)
 |---|---|
 | `npm run app` | Browser users: build if needed, start the server on :5555, open the default browser |
 | `npm run desktop:dev` | Build web + server, stage them into `desktop/out/`, launch Electron |
-| `npm run desktop:build` | Same, then package `desktop/release/mac-arm64/PG Studio.app` and `desktop/release/PG-Studio-<ver>-arm64.dmg` |
-| `npm run desktop:smoke` | End-to-end check of the packaged app (UI, preload bridge, DB connection, clean quit) |
+| `npm run desktop:build` | Same, then package `desktop/release/mac-arm64/<productName>.app`, `<Slug>-<ver>-mac-arm64.dmg` and `.zip` (Developer ID signed + notarized when the signing env vars are set) |
+| `npm run desktop:assets` | Release files (stable alias names + `SHA256SUMS.txt`) in `desktop/release/assets/` |
+| `npm run desktop:smoke` | End-to-end check of the packaged app (UI, preload bridge, DB connection, clean quit). Add `-- --isolated` to run next to an installed copy (temp profile, own single-instance lock and port) |
+
+Releases, signing and notarization: see [docs/RELEASING.md](../docs/RELEASING.md). The product
+name, version and GitHub repo come from this folder's `package.json` (`productName`, `version`,
+`repository`).
 
 `desktop/` is a standalone npm package (not a workspace); its deps install on first use.
 For UI hot-reload inside Electron: `npm run dev` in one terminal, then
 `PGSTUDIO_URL=http://localhost:5173 npx --prefix desktop electron desktop`.
 
-## Opening the unsigned app
+## Opening an unsigned build
 
-The app is ad-hoc signed, not notarized. On first launch macOS will refuse a double-click:
+Builds made without Apple credentials are ad-hoc signed, not notarized. On first launch macOS will refuse a double-click:
 **right-click (or Control-click) "PG Studio" → Open → Open**. Alternatively System Settings →
 Privacy & Security → "Open Anyway". If a copied/downloaded app says it is *damaged*, remove the
 quarantine flag: `xattr -dr com.apple.quarantine "/Applications/PG Studio.app"`.
@@ -44,3 +49,6 @@ quarantine flag: `xattr -dr com.apple.quarantine "/Applications/PG Studio.app"`.
 * **Title bar**: `hiddenInset`; the top bar becomes a drag region with 78px left padding for the
   traffic lights (CSS injected by the main process; targets `[data-titlebar]` or the shell's first row).
 * **Icon**: `npm run icon --prefix desktop` regenerates `build/icon.icns` from `web/public/logo.svg`.
+* **Update notice**: on launch (at most once a day) the main process checks the latest GitHub
+  release of `repository`; the renderer gets it via `window.pgstudioDesktop.checkForUpdate()`
+  (called by `initDesktopBridge`) and shows a toast with a Download button. No auto-update.

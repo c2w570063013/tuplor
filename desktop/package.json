@@ -5,18 +5,19 @@
   "version": "0.1.0",
   "description": "PG Studio — a beautiful, free PostgreSQL management tool",
   "author": "PG Studio",
+  "license": "MIT",
+  "repository": "https://github.com/OWNER/REPO",
   "main": "src/main.cjs",
   "scripts": {
     "stage": "node scripts/stage.mjs",
     "icon": "node scripts/make-icon.mjs",
     "start": "electron .",
     "dev": "node scripts/stage.mjs && electron .",
-    "dist": "node scripts/stage.mjs && electron-builder --mac --arm64 --publish never"
+    "dist": "node scripts/stage.mjs && node scripts/dist.mjs",
+    "release-assets": "node scripts/release-assets.mjs"
   },
   "build": {
     "appId": "app.pgstudio",
-    "productName": "PG Studio",
-    "copyright": "PG Studio",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -33,6 +34,10 @@
       {
         "from": "out/web",
         "to": "web"
+      },
+      {
+        "from": "../LICENSE",
+        "to": "LICENSE.txt"
       }
     ],
     "asar": true,
@@ -43,18 +48,25 @@
           "arch": [
             "arm64"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.developer-tools",
       "icon": "build/icon.icns",
-      "identity": "-",
-      "hardenedRuntime": false,
       "darkModeSupport": true,
-      "artifactName": "PG-Studio-${version}-${arch}.${ext}"
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true
     },
     "dmg": {
-      "title": "PG Studio ${version}",
-      "artifactName": "PG-Studio-${version}-${arch}.${ext}"
+      "title": "${productName} ${version}"
     },
     "electronLanguages": [
       "en",

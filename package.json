@@ -15,7 +15,9 @@
     "app": "node scripts/launch.mjs",
     "desktop:dev": "node scripts/desktop.mjs dev",
     "desktop:build": "node scripts/desktop.mjs build",
-    "desktop:smoke": "node scripts/desktop.mjs smoke"
+    "desktop:smoke": "node scripts/desktop.mjs smoke",
+    "desktop:assets": "node scripts/desktop.mjs assets",
+    "license": "node desktop/scripts/license.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.5",

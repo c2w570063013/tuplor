@@ -4,6 +4,10 @@
 //   node scripts/smoke.mjs                       # dev: node_modules/electron against desktop/out
 //   node scripts/smoke.mjs --app "release/mac-arm64/PG Studio.app"
 //   node scripts/smoke.mjs --app … --screenshot /tmp/pgstudio.png
+//   node scripts/smoke.mjs --app … --isolated        # temp profile: own single-instance lock and
+//                                                    # port, so it runs next to an installed copy
+//   PGSTUDIO_UPDATE_REPO=electron/electron node scripts/smoke.mjs … --expect-update
+//                                                    # also require the "Update available" toast
 //
 // Launches the app with --remote-debugging-port, waits for the UI, checks the preload bridge
 // and the title-bar CSS, connects the first saved connection whose name contains "demo"
@@ -11,6 +15,7 @@
 // screenshot, quits the app and verifies the server child went away.
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,6 +27,8 @@ const arg = (name) => {
 const appArg = arg('--app');
 const shot = arg('--screenshot');
 const port = 9339;
+const isolatedDir = process.argv.includes('--isolated') ? fs.mkdtempSync(path.join(os.tmpdir(), 'pgstudio-smoke-')) : null;
+const expectUpdate = process.argv.includes('--expect-update');
 
 let exe, args;
 if (appArg) {
@@ -34,13 +41,16 @@ if (appArg) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const cleanup = () => isolatedDir && fs.rmSync(isolatedDir, { recursive: true, force: true });
 const fail = (msg) => {
   console.error('✖ ' + msg);
   child?.kill('SIGTERM');
+  cleanup();
   process.exit(1);
 };
 
-console.log(`→ launching ${exe}`);
+console.log(`→ launching ${exe}${isolatedDir ? ` (isolated profile ${isolatedDir})` : ''}`);
+if (isolatedDir) args.push(`--user-data-dir=${isolatedDir}`);
 const child = spawn(exe, [...args, `--remote-debugging-port=${port}`], { stdio: ['ignore', 'pipe', 'pipe'] });
 child.stderr.on('data', (d) => process.env.SMOKE_VERBOSE && process.stderr.write(d));
 
@@ -130,6 +140,16 @@ else {
   console.log(`✔ connected "${result.name}" → ${result.db}: ${row}`);
 }
 
+if (expectUpdate) {
+  let text = null;
+  for (let i = 0; i < 100 && !text; i++) {
+    await sleep(200);
+    text = await evaluate(`[...document.querySelectorAll('[data-sonner-toast]')].map((t) => t.textContent).find((t) => /Update available/.test(t)) || null`);
+  }
+  if (!text) fail('no "Update available" toast within 20s (set PGSTUDIO_UPDATE_REPO to a repo with a newer release)');
+  console.log(`✔ update notice: ${text.replace(/\s+/g, ' ').trim()}`);
+}
+
 if (shot) {
   // Open the demo database in the UI explorer, if possible, so the screenshot shows real data.
   await sleep(1500);
@@ -145,3 +165,4 @@ await sleep(500);
 const alive = await fetch(appUrl + '/api/health').then(() => true, () => false);
 if (alive) fail(`server at ${appUrl} still running after quit`);
 console.log('✔ quit cleanly; server child stopped');
+cleanup();
