@@ -4,6 +4,8 @@
 //     isDesktop: true,
 //     platform: 'darwin' | 'win32' | 'linux',
 //     onCommand(cb: (command: string) => void): () => void   // returns an unsubscribe fn
+//     checkForUpdate(): Promise<{ version, current, url, name? } | null>
+//                                       // newer GitHub release, checked at most once a day
 //   }
 //
 // Commands sent from the native menu: 'new-query', 'new-connection', 'close-tab',
@@ -32,6 +34,9 @@ contextBridge.exposeInMainWorld('pgstudioDesktop', {
     listeners.add(cb);
     ipcRenderer.send('pgstudio:bridge-ready');
     return () => listeners.delete(cb);
+  },
+  checkForUpdate() {
+    return ipcRenderer.invoke('pgstudio:check-update');
   },
 });
 

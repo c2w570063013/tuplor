@@ -7,14 +7,18 @@
 // Env overrides (dev only):
 //   PGSTUDIO_URL=http://localhost:5173   don't start a server, load this URL (e.g. Vite dev server)
 //   PGSTUDIO_DEVTOOLS=1                  open devtools on start
+//   PGSTUDIO_UPDATE_CHECK=0              disable the GitHub release check
+//   PGSTUDIO_UPDATE_REPO=owner/repo      check this repo instead, ignoring the once-a-day limit (testing)
 'use strict';
 
-const { app, BrowserWindow, Menu, dialog, ipcMain, nativeTheme, screen, shell, utilityProcess } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, nativeTheme, screen, shell, utilityProcess, net: electronNet } = require('electron');
 const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
+const pkg = require('../package.json');
 
-const APP_NAME = 'PG Studio';
+// Product name and GitHub repo live in desktop/package.json (`productName`, `repository`).
+const APP_NAME = pkg.productName;
 const IS_MAC = process.platform === 'darwin';
 // Stable preferred port: the UI keeps tabs/settings in localStorage, which is per-origin,
 // so a random port on every launch would wipe the workspace. Fall back to a free port.
@@ -326,6 +330,98 @@ function createWindow() {
 function sendWindowState(win) {
   if (!win.isDestroyed()) win.webContents.send('pgstudio:window-state', { fullscreen: win.isFullScreen() });
 }
+
+// ---------------------------------------------------------------------------------------------
+// Update notice (no auto-install). At most once a day, ask GitHub for the latest release of the
+// repo in package.json `repository`; the renderer shows a toast with a "Download" button that
+// opens the release page. Silent on any failure (offline, rate limit, placeholder repo).
+
+const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+function updateRepo() {
+  const override = process.env.PGSTUDIO_UPDATE_REPO;
+  const url = override ? `https://github.com/${override}` : (typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url) || '';
+  const m = /github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i.exec(url);
+  if (!m || /^OWNER$/i.test(m[1]) || /^REPO$/i.test(m[2])) return null;
+  return `${m[1]}/${m[2]}`;
+}
+
+function parseVersion(v) {
+  const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(String(v ?? '').trim());
+  return m ? m.slice(1).map(Number) : null;
+}
+
+/** True when `latest` is a plain x.y.z release newer than `current`. */
+function isNewerVersion(latest, current) {
+  const a = parseVersion(latest);
+  const b = parseVersion(current);
+  if (!a || !b) return false;
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i];
+  return false;
+}
+
+function markUpdateChecked() {
+  writeJson(prefsFile, { ...readJson(prefsFile, {}), updateCheckedAt: Date.now() });
+}
+
+function updateResult(repo, version, url) {
+  if (!isNewerVersion(version, app.getVersion())) return null;
+  const page = `https://github.com/${repo}/releases/`;
+  return { version, current: app.getVersion(), url: typeof url === 'string' && url.startsWith(page) ? url : page + 'latest' };
+}
+
+/**
+ * Latest release via the REST API. The unauthenticated API allows 60 requests/hour per IP, which
+ * shared/corporate IPs exhaust, so on 403/429 fall back to the redirect of the public
+ * `/releases/latest` page (→ /releases/tag/<tag>), which has no such limit.
+ */
+async function fetchLatestRelease(repo) {
+  const headers = { 'User-Agent': `${APP_NAME.replace(/\W+/g, '-')}/${app.getVersion()}` };
+  const res = await electronNet.fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
+    headers: { ...headers, Accept: 'application/vnd.github+json' },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (res.ok) {
+    markUpdateChecked();
+    const rel = await res.json();
+    if (rel.draft || rel.prerelease) return null;
+    return updateResult(repo, String(rel.tag_name || '').replace(/^v/, ''), rel.html_url);
+  }
+  if (res.status !== 403 && res.status !== 429) {
+    markUpdateChecked(); // 404: no release yet (or no such repo)
+    return null;
+  }
+  // Node's fetch exposes the Location of a manual redirect (Electron's net.fetch does not).
+  const page = await fetch(`https://github.com/${repo}/releases/latest`, {
+    method: 'HEAD',
+    redirect: 'manual',
+    headers,
+    signal: AbortSignal.timeout(10_000),
+  });
+  const location = page.headers.get('location') || '';
+  const m = /\/releases\/tag\/v?([^/?#]+)$/.exec(location);
+  if (page.status < 300 || page.status >= 400) return null; // retry on next launch
+  markUpdateChecked();
+  return m ? updateResult(repo, decodeURIComponent(m[1]), location) : null;
+}
+
+let updateCheck = null; // one check per launch, shared by every caller
+function checkForUpdate() {
+  updateCheck ??= (async () => {
+    const repo = updateRepo();
+    if (!repo || process.env.PGSTUDIO_UPDATE_CHECK === '0') return null;
+    const last = readJson(prefsFile, {}).updateCheckedAt;
+    if (!process.env.PGSTUDIO_UPDATE_REPO && typeof last === 'number' && Date.now() - last < UPDATE_INTERVAL_MS) return null;
+    try {
+      return await fetchLatestRelease(repo);
+    } catch {
+      return null;
+    }
+  })();
+  return updateCheck;
+}
+
+ipcMain.handle('pgstudio:check-update', (e) => (isAppUrl(e.senderFrame?.url || '') ? checkForUpdate() : null));
 
 // ---------------------------------------------------------------------------------------------
 // Menu & renderer commands

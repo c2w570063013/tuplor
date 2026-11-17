@@ -1,0 +1,105 @@
+# Builds the macOS (Apple Silicon) desktop app and publishes a GitHub Release.
+#
+# Trigger: push a tag v<version> matching desktop/package.json "version" (see docs/RELEASING.md).
+# Signing + notarization happen automatically when the Apple secrets are set; without them the
+# release is ad-hoc signed and not notarized (users must right-click → Open on first launch).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # create the release and upload assets
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  macos-arm64:
+    runs-on: macos-15 # Apple Silicon (arm64)
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+
+      - name: Check tag matches desktop/package.json version
+        run: |
+          version=$(node -p "require('./desktop/package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match desktop/package.json version ${version} (expected v${version})."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix desktop
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Check LICENSE
+        run: npm run license -- --check
+
+      - name: Build, sign and notarize the desktop app
+        # Missing secrets arrive as empty strings; desktop/scripts/dist.mjs treats them as unset
+        # and falls back to an ad-hoc signed, un-notarized build.
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npm run desktop:build
+
+      - name: Verify signature
+        run: |
+          app=$(ls -d desktop/release/mac-arm64/*.app | head -1)
+          codesign --verify --deep --strict --verbose=2 "$app"
+          if [ "$(node -p "require('./desktop/release/build-info.json').notarized")" = "true" ]; then
+            xcrun stapler validate "$app"
+            spctl --assess --type execute --verbose=4 "$app"
+          fi
+
+      - name: Collect release assets
+        run: npm run desktop:assets
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          info=desktop/release/build-info.json
+          name=$(node -p "require('./$info').productName")
+          notarized=$(node -p "require('./$info').notarized")
+          dmg=$(node --input-type=module -e "const m = await import('./desktop/scripts/product.mjs'); console.log(m.artifactNames('dmg').alias)")
+          {
+            echo "## Download"
+            echo
+            echo "macOS (Apple Silicon): [${dmg}](https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/${dmg})"
+            echo
+            if [ "$notarized" != "true" ]; then
+              echo "> [!NOTE]"
+              echo "> This build is not notarized by Apple. On first launch, right-click **${name}** in Applications → **Open** → **Open**."
+              echo
+            fi
+            echo "Verify the download: \`shasum -a 256 -c SHA256SUMS.txt\`"
+          } > "$RUNNER_TEMP/notes.md"
+          prerelease=""
+          case "${GITHUB_REF_NAME}" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "${GITHUB_REF_NAME}" desktop/release/assets/* \
+            --title "${name} ${GITHUB_REF_NAME}" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            --generate-notes \
+            --verify-tag $prerelease
