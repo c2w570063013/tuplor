@@ -4,9 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PG Studio</title>
+    <title>Tuplor</title>
     <script>
-      try { const t = localStorage.getItem('pgstudio.theme'); if (t === 'light') document.documentElement.classList.remove('dark'); } catch {}
+      // One-time copy of settings saved under the app's former name (pgstudio.*).
+      try {
+        if (!localStorage.getItem('tuplor.migrated')) {
+          for (const k of Object.keys(localStorage)) {
+            if (k.startsWith('pgstudio.')) { const n = 'tuplor.' + k.slice(9); if (localStorage.getItem(n) == null) localStorage.setItem(n, localStorage.getItem(k)); }
+          }
+          localStorage.setItem('tuplor.migrated', '1');
+        }
+      } catch {}
+      try { const t = localStorage.getItem('tuplor.theme'); if (t === 'light') document.documentElement.classList.remove('dark'); } catch {}
     </script>
   </head>
   <body>

@@ -212,7 +212,7 @@ export function BackupForm({
       </Section>
 
       <Section title="Output">
-        <Field label="File name" hint="Saved to ~/.pgstudio/backups/">
+        <Field label="File name" hint="Saved to ~/.tuplor/backups/">
           <div className="flex items-center">
             <Input value={fileName} placeholder={defaultName} onChange={(e) => setFileName(e.target.value)} className="rounded-r-none" />
             <span className="flex h-8 items-center rounded-r-md border border-l-0 border-border-strong bg-sunken px-2 font-mono text-xs text-muted">{ext}</span>

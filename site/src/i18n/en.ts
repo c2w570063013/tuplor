@@ -150,10 +150,10 @@ const en = {
   },
   privacy: {
     title: 'Runs locally. Your data never leaves your machine.',
-    lead: '{name} talks straight from your Mac to your database. There is no cloud service in between, no account to create and no telemetry.',
+    lead: '{name} talks straight from your Mac to your database. There is no cloud service in between, no account to create and no telemetry. The only other request it makes is a once-a-day check of GitHub Releases for a newer version.',
     points: [
       { title: 'Local only', body: 'The app’s engine runs on your computer and only listens on 127.0.0.1.' },
-      { title: 'Encrypted secrets', body: 'Saved passwords are encrypted with AES-256-GCM in ~/.pgstudio.' },
+      { title: 'Encrypted secrets', body: 'Saved passwords are encrypted with AES-256-GCM in ~/.tuplor.' },
       { title: 'Safe by default', body: 'Dangerous statements need confirmation, and connections can be marked read-only.' },
       { title: 'Open source', body: 'Every line is on GitHub under the {license} license. Read it, build it, fork it.' },
     ],
@@ -183,7 +183,7 @@ const en = {
       },
       {
         q: 'Where is my data stored?',
-        a: 'Saved connections and settings live in ~/.pgstudio on your Mac, with passwords encrypted (AES-256-GCM). Set the PGSTUDIO_HOME environment variable to use a different folder. Nothing is sent to any third-party server.',
+        a: 'Saved connections and settings live in ~/.tuplor on your Mac, with passwords encrypted (AES-256-GCM). Set the TUPLOR_HOME environment variable to use a different folder. Your connections and query data are never sent anywhere; the only outside request is a daily update check against GitHub Releases.',
       },
       {
         q: 'Is it really free?',

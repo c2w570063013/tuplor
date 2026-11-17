@@ -1,6 +1,6 @@
-# PG Studio — Desktop (macOS)
+# Tuplor — Desktop (macOS)
 
-The desktop app is a thin Electron shell around the regular PG Studio server + web UI.
+The desktop app is a thin Electron shell around the regular Tuplor server + web UI.
 
 ```
 Electron main (src/main.cjs)
@@ -25,30 +25,30 @@ name, version and GitHub repo come from this folder's `package.json` (`productNa
 
 `desktop/` is a standalone npm package (not a workspace); its deps install on first use.
 For UI hot-reload inside Electron: `npm run dev` in one terminal, then
-`PGSTUDIO_URL=http://localhost:5173 npx --prefix desktop electron desktop`.
+`TUPLOR_URL=http://localhost:5173 npx --prefix desktop electron desktop`.
 
 ## Opening an unsigned build
 
 Builds made without Apple credentials are ad-hoc signed, not notarized. On first launch macOS will refuse a double-click:
-**right-click (or Control-click) "PG Studio" → Open → Open**. Alternatively System Settings →
-Privacy & Security → "Open Anyway". If a copied/downloaded app says it is *damaged*, remove the
-quarantine flag: `xattr -dr com.apple.quarantine "/Applications/PG Studio.app"`.
+open System Settings → Privacy & Security, scroll down and click **"Open Anyway"** (on macOS 15+
+the old right-click → Open shortcut no longer bypasses Gatekeeper). If a copied/downloaded app says it is *damaged*, remove the
+quarantine flag: `xattr -dr com.apple.quarantine "/Applications/Tuplor.app"`.
 
 ## Details
 
-* **Data**: connections live in `~/.pgstudio` (shared with the browser version). Window state,
-  the chosen port and `logs/server.log` live in `~/Library/Application Support/PG Studio/`.
+* **Data**: connections live in `~/.tuplor` (shared with the browser version). Window state,
+  the chosen port and `logs/server.log` live in `~/Library/Application Support/Tuplor/`.
 * **Port**: 45555 is preferred so the UI's localStorage (tabs, settings — keyed by origin)
   survives restarts; if busy, a free port is chosen and remembered.
 * **PATH**: Homebrew / Postgres.app `bin` dirs are appended so `pg_dump`/`psql` are found when
   launched from Finder.
 * **Menu → web**: the native menu sends `new-query` (⌘T), `new-connection` (⌘N), `close-tab` (⌘W),
   `open-settings` (⌘,), `toggle-sidebar` (⌘B), `command-palette` (⌘K) through
-  `window.pgstudioDesktop.onCommand`. Use `initDesktopBridge()` from `web/src/lib/desktop.ts`.
+  `window.tuplorDesktop.onCommand`. Use `initDesktopBridge()` from `web/src/lib/desktop.ts`.
   ⌘B/⌘K are display-only in the menu (the web handles those keys itself).
 * **Title bar**: `hiddenInset`; the top bar becomes a drag region with 78px left padding for the
   traffic lights (CSS injected by the main process; targets `[data-titlebar]` or the shell's first row).
 * **Icon**: `npm run icon --prefix desktop` regenerates `build/icon.icns` from `web/public/logo.svg`.
 * **Update notice**: on launch (at most once a day) the main process checks the latest GitHub
-  release of `repository`; the renderer gets it via `window.pgstudioDesktop.checkForUpdate()`
+  release of `repository`; the renderer gets it via `window.tuplorDesktop.checkForUpdate()`
   (called by `initDesktopBridge`) and shows a toast with a Download button. No auto-update.

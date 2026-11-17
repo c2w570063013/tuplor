@@ -1,5 +1,5 @@
 {
-  "name": "@pgstudio/server",
+  "name": "@tuplor/server",
   "private": true,
   "type": "module",
   "scripts": {

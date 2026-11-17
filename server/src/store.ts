@@ -4,8 +4,8 @@ import type { ConnectionConfig } from '../../shared/types';
 import { dataFile, readJson, writeJson } from './lib/paths';
 
 /**
- * Connection store: ~/.pgstudio/connections.json.
- * Passwords are encrypted with AES-256-GCM using a per-install key in ~/.pgstudio/secret.key.
+ * Connection store: ~/.tuplor/connections.json.
+ * Passwords are encrypted with AES-256-GCM using a per-install key in ~/.tuplor/secret.key.
  */
 
 interface StoredConnection extends Omit<ConnectionConfig, 'password' | 'hasPassword'> {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /** Expanded / selected state of the explorer tree (expanded keys persisted in localStorage). */
-const LS_KEY = 'pgstudio.explorer.expanded';
+const LS_KEY = 'tuplor.explorer.expanded';
 
 function load(): Set<string> {
   try {

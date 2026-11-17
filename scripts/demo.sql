@@ -1,4 +1,4 @@
--- PG Studio demo database. Usage:  createdb pgstudio_demo && psql -d pgstudio_demo -f scripts/demo.sql
+-- Tuplor demo database. Usage:  createdb tuplor_demo && psql -d tuplor_demo -f scripts/demo.sql
 DROP SCHEMA IF EXISTS shop CASCADE;
 DROP SCHEMA IF EXISTS analytics CASCADE;
 CREATE SCHEMA shop;
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS public.notes (
 );
 TRUNCATE public.notes;
 INSERT INTO public.notes (title, body, done) VALUES
- ('Welcome to PG Studio', 'Double-click a cell to edit it.', false),
+ ('Welcome to Tuplor', 'Double-click a cell to edit it.', false),
  ('中文測試', '支援 Unicode 與 emoji 🐘', true),
  ('Multi-line', E'first line\nsecond line', false);
 

@@ -1,6 +1,6 @@
-# PG Studio — Architecture & Team Handbook
+# Tuplor — Architecture & Team Handbook
 
-PG Studio is a free, local-first PostgreSQL management tool: a Node (Fastify) server that talks to
+Tuplor is a free, local-first PostgreSQL management tool: a Node (Fastify) server that talks to
 PostgreSQL, plus a React web UI. It runs as `npm run dev` (development), `npm run build && npm start`
 (production, served on http://localhost:5555), and is packaged as a desktop app (Electron, `desktop/`).
 
@@ -13,10 +13,10 @@ server/src/
   db.ts                    Pools per (connection, database), persistent editor sessions, cancel, helpers:
                            queryRows(), withClient(), withTransaction(), getPool()
   query.ts                 SQL execution engine (statement splitting, cursors, maxRows, notices, errors)
-  store.ts                 Saved connections (~/.pgstudio/connections.json, AES-GCM encrypted passwords)
+  store.ts                 Saved connections (~/.tuplor/connections.json, AES-GCM encrypted passwords)
   lib/sql.ts               quoteIdent / quoteLiteral / qualified / splitStatements
   lib/errors.ts            HttpError, toQueryError (pg error → QueryError)
-  lib/paths.ts             DATA_DIR (~/.pgstudio or $PGSTUDIO_HOME), readJson/writeJson
+  lib/paths.ts             DATA_DIR (~/.tuplor or $TUPLOR_HOME), readJson/writeJson
   routes/index.ts          Registers every route module
   routes/connections.ts    CRUD/test/connect                     (core)
   routes/query.ts          POST /api/c/:connId/db/:db/query, cancel, sessions   (core)
@@ -31,7 +31,7 @@ web/src/
   components/SqlBlock.tsx  Read-only highlighted SQL with copy button
   lib/api.ts               http helpers, api.* core calls, runSql(), dbUrl()
   lib/format.ts            formatBytes/Duration/Count, quoteIdent/qualified/quoteLiteral (client side), uid, modKey
-  lib/monaco.ts            Local Monaco bundle + pgstudio-dark/light themes
+  lib/monaco.ts            Local Monaco bundle + tuplor-dark/light themes
   lib/queryClient.ts       TanStack Query client + invalidateDb()
   stores/workspace.ts      Tabs (kinds & params documented there), active connection/db, newQuery()
   stores/connections.ts    Saved connections + live connection state (ServerInfo)
@@ -80,7 +80,7 @@ and list it explicitly in your final report.
 
 ## Local test database
 
-`createdb pgstudio_demo && psql -d pgstudio_demo -f scripts/demo.sql` — schemas `shop`, `analytics`,
+`createdb tuplor_demo && psql -d tuplor_demo -f scripts/demo.sql` — schemas `shop`, `analytics`,
 `public`; enums, domains, jsonb, arrays, bytea, partitioned table, views, materialized view, functions,
 procedure, trigger, table without PK, 60k orders. On this machine PostgreSQL 18 listens on the Unix
 socket `/tmp` (connect with host `/tmp`, user = OS user, no password).

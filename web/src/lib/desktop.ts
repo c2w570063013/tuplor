@@ -1,7 +1,7 @@
 /**
- * Bridge to the PG Studio desktop shell (Electron). No-op in a normal browser.
+ * Bridge to the Tuplor desktop shell (Electron). No-op in a normal browser.
  *
- * The preload script exposes `window.pgstudioDesktop`; the native menu sends commands
+ * The preload script exposes `window.tuplorDesktop`; the native menu sends commands
  * (⌘T new query, ⌘N new connection, ⌘W close tab, ⌘, settings, ⌘B sidebar, ⌘K palette).
  *
  * Usage (once, at app start):
@@ -24,7 +24,7 @@ export interface DesktopUpdateInfo {
   name?: string;
 }
 
-export interface PgStudioDesktop {
+export interface TuplorDesktop {
   isDesktop: true;
   platform: string;
   onCommand(cb: (command: string) => void): () => void;
@@ -34,11 +34,11 @@ export interface PgStudioDesktop {
 
 declare global {
   interface Window {
-    pgstudioDesktop?: PgStudioDesktop;
+    tuplorDesktop?: TuplorDesktop;
   }
 }
 
-export const desktop: PgStudioDesktop | undefined = typeof window !== 'undefined' ? window.pgstudioDesktop : undefined;
+export const desktop: TuplorDesktop | undefined = typeof window !== 'undefined' ? window.tuplorDesktop : undefined;
 
 /** True when running inside the desktop app. */
 export const isDesktop = !!desktop?.isDesktop;

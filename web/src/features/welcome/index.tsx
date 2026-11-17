@@ -28,7 +28,7 @@ export function WelcomeScreen() {
         <div className="flex items-center gap-4">
           <img src="/logo.svg" className="h-14 w-14 rounded-2xl shadow-lg" alt="" />
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-fg">PG Studio</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-fg">Tuplor</h1>
             <p className="text-sm text-muted">A fast, beautiful and free PostgreSQL workbench.</p>
           </div>
         </div>

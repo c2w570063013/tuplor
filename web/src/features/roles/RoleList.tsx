@@ -21,7 +21,7 @@ const GROUP_LABEL: Record<GroupKey, string> = { login: 'Users', group: 'Groups',
 
 function readCollapsed(): Record<GroupKey, boolean> {
   try {
-    return { login: false, group: false, system: true, ...JSON.parse(localStorage.getItem('pgstudio.roles.collapsed') || '{}') };
+    return { login: false, group: false, system: true, ...JSON.parse(localStorage.getItem('tuplor.roles.collapsed') || '{}') };
   } catch {
     return { login: false, group: false, system: true };
   }
@@ -35,7 +35,7 @@ export function RoleList({ data, isLoading, isFetching, error, selected, onSelec
   const toggle = (g: GroupKey) =>
     setCollapsed((c) => {
       const n = { ...c, [g]: !c[g] };
-      try { localStorage.setItem('pgstudio.roles.collapsed', JSON.stringify(n)); } catch { /* ignore */ }
+      try { localStorage.setItem('tuplor.roles.collapsed', JSON.stringify(n)); } catch { /* ignore */ }
       return n;
     });
 

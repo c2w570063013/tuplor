@@ -146,7 +146,7 @@ function ToolsDialog({ open, onOpenChange, tools, connId }: { open: boolean; onO
           </div>
         </div>
 
-        <Field label="Custom bin directory" hint="Folder containing pg_dump, pg_restore and psql. Saved in ~/.pgstudio.">
+        <Field label="Custom bin directory" hint="Folder containing pg_dump, pg_restore and psql. Saved in ~/.tuplor.">
           <div className="flex gap-2">
             <Input mono value={dir} onChange={(e) => setDir(e.target.value)} placeholder="/opt/homebrew/opt/postgresql@18/bin" />
             <Button onClick={() => void save(dir.trim() || null)} disabled={busy || !dir.trim()}>Save</Button>

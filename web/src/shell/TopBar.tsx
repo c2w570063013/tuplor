@@ -41,7 +41,7 @@ export function TopBar() {
       <IconButton label="Toggle sidebar" shortcut={`${modKey} B`} onClick={ws.toggleSidebar}><PanelLeft size={15} /></IconButton>
       <div className="flex items-center gap-2 pr-2 pl-1">
         <img src="/logo.svg" alt="" className="h-5 w-5" />
-        <span className="text-[13px] font-semibold tracking-tight text-fg">PG Studio</span>
+        <span className="text-[13px] font-semibold tracking-tight text-fg">Tuplor</span>
       </div>
 
       <DropdownMenu

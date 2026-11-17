@@ -5,7 +5,7 @@ A tag push builds it on a GitHub-hosted Mac (`.github/workflows/release.yml`), s
 notarizes it when the Apple credentials are configured, and publishes the release.
 
 Without credentials everything still works: the build is **ad-hoc signed and not notarized**,
-and users have to right-click → **Open** the first time. Signing switches on as soon as the
+and users have to allow it once via System Settings → Privacy & Security → **Open Anyway**. Signing switches on as soon as the
 GitHub secrets below exist; no code or config change is needed.
 
 ## Where things are configured
@@ -30,7 +30,7 @@ the app skips the update check.
 
 ## Release assets
 
-Every release has these files (`<Slug>` is `productName` with spaces replaced by `-`, e.g. `PG-Studio`):
+Every release has these files (`<Slug>` is `productName` with spaces replaced by `-`, e.g. `Tuplor`):
 
 | File | Purpose |
 |---|---|
@@ -162,11 +162,11 @@ instead of the keychain profile the same `APPLE_API_KEY` (a path to the `.p8` wo
 Check the result:
 
 ```bash
-codesign --verify --deep --strict --verbose=2 "desktop/release/mac-arm64/PG Studio.app"
+codesign --verify --deep --strict --verbose=2 "desktop/release/mac-arm64/Tuplor.app"
 ```
 
 ```bash
-spctl --assess --type execute --verbose=4 "desktop/release/mac-arm64/PG Studio.app"
+spctl --assess --type execute --verbose=4 "desktop/release/mac-arm64/Tuplor.app"
 ```
 
 (`spctl` should say `source=Notarized Developer ID`; adjust the app name if you renamed it.)
@@ -200,5 +200,5 @@ On launch (at most once per 24 hours) the desktop app requests
 version, the UI shows a toast with a **Download** button that opens the release page in the
 browser. There is no auto-update. Offline, rate-limited or placeholder-repo cases are silent.
 
-For testing: `PGSTUDIO_UPDATE_REPO=owner/repo` checks another repo and ignores the daily limit;
-`PGSTUDIO_UPDATE_CHECK=0` disables the check.
+For testing: `TUPLOR_UPDATE_REPO=owner/repo` checks another repo and ignores the daily limit;
+`TUPLOR_UPDATE_CHECK=0` disables the check.

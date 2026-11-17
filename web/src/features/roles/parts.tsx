@@ -41,7 +41,7 @@ export function expiryInfo(v: string | null): ExpiryInfo {
 export function RoleBadges({ role, isYou, compact }: { role: RoleInfo; isYou?: boolean; compact?: boolean }) {
   const exp = expiryInfo(role.validUntil);
   const items: { label: string; tone: 'neutral' | 'accent' | 'success' | 'warning' | 'danger'; title: string }[] = [];
-  if (isYou) items.push({ label: 'You', tone: 'accent', title: 'The role PG Studio is connected as' });
+  if (isYou) items.push({ label: 'You', tone: 'accent', title: 'The role Tuplor is connected as' });
   if (role.superuser) items.push({ label: 'Superuser', tone: 'warning', title: 'Bypasses all permission checks' });
   if (role.canLogin) items.push({ label: 'Login', tone: 'success', title: 'Can log in' });
   if (!compact) {

@@ -32,7 +32,7 @@ const render = (size) => new Resvg(svg, { fitTo: { mode: 'width', value: size } 
 
 fs.writeFileSync(path.join(buildDir, 'icon.png'), render(1024));
 
-const iconset = fs.mkdtempSync(path.join(os.tmpdir(), 'pgstudio-')) + '/icon.iconset';
+const iconset = fs.mkdtempSync(path.join(os.tmpdir(), 'tuplor-')) + '/icon.iconset';
 fs.mkdirSync(iconset);
 for (const s of [16, 32, 128, 256, 512]) {
   fs.writeFileSync(path.join(iconset, `icon_${s}x${s}.png`), render(s));

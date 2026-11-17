@@ -151,10 +151,10 @@ const zhTW: Dict = {
   },
   privacy: {
     title: '本機執行，資料不出你的電腦。',
-    lead: '{name} 直接從你的 Mac 連到你的資料庫，中間沒有任何雲端服務，不用註冊帳號，也沒有遙測。',
+    lead: '{name} 直接從你的 Mac 連到你的資料庫，中間沒有任何雲端服務，不用註冊帳號，也沒有遙測。唯一對外的請求是每天一次到 GitHub Releases 檢查有沒有新版本。',
     points: [
       { title: '只在本機', body: 'App 的引擎在你的電腦上執行，只監聽 127.0.0.1。' },
-      { title: '密碼加密', body: '儲存的密碼以 AES-256-GCM 加密，存放在 ~/.pgstudio。' },
+      { title: '密碼加密', body: '儲存的密碼以 AES-256-GCM 加密，存放在 ~/.tuplor。' },
       { title: '預設安全', body: '危險語句需要確認，連線也可以設為唯讀。' },
       { title: '完全開源', body: '所有程式碼都在 GitHub，以 {license} 授權。歡迎閱讀、自行建置或 fork。' },
     ],
@@ -183,7 +183,7 @@ const zhTW: Dict = {
       },
       {
         q: '我的資料存在哪裡?',
-        a: '儲存的連線與設定放在你 Mac 上的 ~/.pgstudio，密碼以 AES-256-GCM 加密。可用環境變數 PGSTUDIO_HOME 改到其他資料夾。不會傳送任何資料到第三方伺服器。',
+        a: '儲存的連線與設定放在你 Mac 上的 ~/.tuplor，密碼以 AES-256-GCM 加密。可用環境變數 TUPLOR_HOME 改到其他資料夾。連線資訊與查詢資料不會傳送到任何地方；唯一對外的請求是每天一次到 GitHub Releases 檢查新版本。',
       },
       {
         q: '真的免費嗎?',

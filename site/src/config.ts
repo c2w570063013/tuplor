@@ -16,12 +16,12 @@
 
 export const SITE = {
   /** Product name, used everywhere on the site (titles, hero, OG image, copy). */
-  name: 'PG Studio',
+  name: 'Tuplor',
 
   /** One-line taglines per language (hero subtitle, <meta description> lead, OG image). */
   tagline: {
-    en: 'A fast, beautiful and free PostgreSQL GUI for macOS.',
-    'zh-TW': '免費、介面優美、功能完整的 PostgreSQL 管理工具。',
+    en: 'Explore every tuple. A fast, beautiful and free PostgreSQL GUI for macOS.',
+    'zh-TW': '看清每一筆資料 —— 免費、介面優美、功能完整的 PostgreSQL 管理工具。',
   },
 
   /** GitHub owner (user or org) and repository name. */
@@ -36,7 +36,7 @@ export const SITE = {
    * these names so that /releases/latest/download/<file> keeps working.
    */
   downloads: {
-    macArm64: 'PG-Studio-mac-arm64.dmg',
+    macArm64: 'Tuplor-mac-arm64.dmg',
   },
 
   /** License shown in hero + footer. */

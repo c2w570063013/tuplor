@@ -56,8 +56,8 @@ with no text.
 ## Custom domain
 
 1. Set the domain in the repository's Settings → Pages.
-2. Add `site/public/CNAME` containing the domain (e.g. `pgstudio.dev`).
-3. In `src/config.ts` set `siteUrl: 'https://pgstudio.dev'` and `basePath: '/'`.
+2. Add `site/public/CNAME` containing the domain (e.g. `tuplor.dev`).
+3. In `src/config.ts` set `siteUrl: 'https://tuplor.dev'` and `basePath: '/'`.
 
 The workflow reads the real base path from GitHub (`actions/configure-pages`), so it
 needs no change.
@@ -65,13 +65,13 @@ needs no change.
 ## Screenshots
 
 `src/assets/screens/<view>-<dark|light>.png` are real captures of the app at 1440×900
-(2× DPR) connected to the `pgstudio_demo` database (`scripts/demo.sql`). Astro converts
+(2× DPR) connected to the `tuplor_demo` database (`scripts/demo.sql`). Astro converts
 them to AVIF + WebP with a PNG fallback at build time; the page shows the dark or light
 set to match the visitor's theme.
 
 To re-capture: build the app, start it with an empty data dir so no personal
-connections appear (`PORT=5601 PGSTUDIO_HOME=$(mktemp -d) npm start`), add one
-connection named "Demo" to `pgstudio_demo`, and capture the same six views
+connections appear (`PORT=5601 TUPLOR_HOME=$(mktemp -d) npm start`), add one
+connection named "Demo" to `tuplor_demo`, and capture the same six views
 (SQL editor with autocomplete open, data grid with staged edits, EXPLAIN ANALYZE,
 ER diagram of `shop`, server dashboard, New connection dialog) in both themes.
 Never commit edits to the demo data. Hide other databases/roles on the server and your

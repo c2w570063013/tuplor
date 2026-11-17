@@ -18,7 +18,7 @@ const pkg = JSON.parse(fs.readFileSync(path.join(desktopDir, 'package.json'), 'u
 
 export const productName = pkg.productName;
 export const version = pkg.version;
-/** File-name safe form of the product name: "PG Studio" → "PG-Studio". */
+/** File-name safe form of the product name: "Tuplor" → "Tuplor". */
 export const productSlug = productName.trim().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
 
 /** "owner/repo" parsed from package.json `repository`, or null while it is still a placeholder. */

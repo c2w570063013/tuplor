@@ -74,7 +74,7 @@ export function clientConfig(c: ConnectionConfig, database?: string): pg.ClientC
     database: database || c.database,
     ssl,
     options: options.length ? options.join(' ') : undefined,
-    application_name: 'PG Studio',
+    application_name: 'Tuplor',
     connectionTimeoutMillis: 10_000,
     types: textTypes as any,
   };

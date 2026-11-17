@@ -23,7 +23,7 @@ app.get('/api/health', async () => ({ ok: true, version: '0.1.0' }));
 
 // Serve the built web app in production.
 const here = path.dirname(fileURLToPath(import.meta.url));
-const webDist = [process.env.PGSTUDIO_WEB_DIST, path.resolve(here, '../../web/dist'), path.resolve(here, '../web/dist')]
+const webDist = [process.env.TUPLOR_WEB_DIST, path.resolve(here, '../../web/dist'), path.resolve(here, '../web/dist')]
   .filter((p): p is string => !!p)
   .find((p) => fs.existsSync(p));
 if (webDist) {
@@ -42,4 +42,4 @@ for (const sig of ['SIGINT', 'SIGTERM'] as const) {
 }
 
 await app.listen({ port: PORT, host: HOST });
-console.log(`\n  🐘 PG Studio server running at http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}\n`);
+console.log(`\n  Tuplor server running at http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}\n`);

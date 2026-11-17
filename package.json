@@ -1,8 +1,8 @@
 {
-  "name": "pgstudio",
+  "name": "tuplor",
   "private": true,
   "version": "0.1.0",
-  "description": "PG Studio — a beautiful, free PostgreSQL management tool",
+  "description": "Tuplor — a beautiful, free PostgreSQL management tool",
   "workspaces": [
     "server",
     "web"

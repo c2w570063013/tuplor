@@ -10,13 +10,11 @@ const FONT = `Inter, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, 'Deja
 
 export const MARK = (size: number, x = 0, y = 0) => `
   <svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 64 64">
-    <defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#4f46e5"/></linearGradient></defs>
+    <defs><linearGradient id="m" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14b8a6"/><stop offset="1" stop-color="#6366f1"/></linearGradient><clipPath id="mc"><rect x="13" y="13" width="38" height="38" rx="7"/></clipPath></defs>
     <rect width="64" height="64" rx="15" fill="url(#m)"/>
-    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <ellipse cx="32" cy="19" rx="14" ry="5.5"/>
-      <path d="M18 19v26c0 3 6.3 5.5 14 5.5s14-2.5 14-5.5V19"/>
-      <path d="M18 32c0 3 6.3 5.5 14 5.5S46 35 46 32"/>
-    </g>
+    <g clip-path="url(#mc)" fill="#fff"><rect x="13" y="13" width="38" height="10"/><rect x="27.5" y="23" width="9" height="28"/></g>
+    <path d="M13 37h14.5M36.5 37H51" stroke="#fff" stroke-opacity=".6" stroke-width="2.5"/>
+    <rect x="13" y="13" width="38" height="38" rx="7" fill="none" stroke="#fff" stroke-width="3"/>
   </svg>`;
 
 function wrap(text: string, max: number): string[] {

@@ -10,8 +10,8 @@ import { readJson, writeJson } from '../lib/paths';
 /**
  * Feature module: SQL editor support (owned by the SQL Editor & Explain team).
  *  - compact schema catalog for autocomplete / hover
- *  - query history (~/.pgstudio/history.json)
- *  - saved snippets (~/.pgstudio/snippets.json)
+ *  - query history (~/.tuplor/history.json)
+ *  - saved snippets (~/.tuplor/snippets.json)
  * See shared/completion.ts for the contract.
  */
 

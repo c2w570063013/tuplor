@@ -57,7 +57,7 @@ export async function runExplain(p: {
   let multi = false;
   if (modifying) {
     if (p.sessionId && p.txStatus === 'transaction') {
-      sql = `SAVEPOINT pgstudio_explain;\n${stmt};\nROLLBACK TO SAVEPOINT pgstudio_explain;\nRELEASE SAVEPOINT pgstudio_explain`;
+      sql = `SAVEPOINT tuplor_explain;\n${stmt};\nROLLBACK TO SAVEPOINT tuplor_explain;\nRELEASE SAVEPOINT tuplor_explain`;
       multi = true;
     } else rollback = true;
   }
@@ -69,7 +69,7 @@ export async function runExplain(p: {
     if (res.error) {
       if (multi && p.sessionId) {
         // keep the user's transaction usable
-        await api.query(p.connId, p.db, { sql: 'ROLLBACK TO SAVEPOINT pgstudio_explain', sessionId: p.sessionId, multi: false }).catch(() => {});
+        await api.query(p.connId, p.db, { sql: 'ROLLBACK TO SAVEPOINT tuplor_explain', sessionId: p.sessionId, multi: false }).catch(() => {});
       }
       return { error: res.error, txStatus: res.txStatus };
     }

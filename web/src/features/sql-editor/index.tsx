@@ -145,7 +145,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
   // ---- markers
   const clearMarkers = () => {
     const m = editorRef.current?.getModel();
-    if (m) monaco.editor.setModelMarkers(m, 'pgstudio', []);
+    if (m) monaco.editor.setModelMarkers(m, 'tuplor', []);
   };
 
   const flash = (start: number, end: number) => {
@@ -246,7 +246,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
         const a = m.getPositionAt(startOff);
         const b = m.getPositionAt(Math.max(endOff, startOff + 1));
         errorPos = a;
-        monaco.editor.setModelMarkers(m, 'pgstudio', [{
+        monaco.editor.setModelMarkers(m, 'tuplor', [{
           severity: monaco.MarkerSeverity.Error,
           message: [e.message, e.detail && `DETAIL: ${e.detail}`, e.hint && `HINT: ${e.hint}`].filter(Boolean).join('\n'),
           code: e.code,
@@ -324,7 +324,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
     const modifying = analyze && isDataModifying(stmt);
     if (modifying && !(await confirm({
       title: 'Run EXPLAIN ANALYZE on a data-modifying statement?',
-      message: 'EXPLAIN ANALYZE actually executes the statement to measure it. PG Studio runs it inside a transaction (or savepoint) and rolls it back afterwards, but side effects outside the database (sequences, NOTIFY, external calls) are not undone.',
+      message: 'EXPLAIN ANALYZE actually executes the statement to measure it. Tuplor runs it inside a transaction (or savepoint) and rolls it back afterwards, but side effects outside the database (sequences, NOTIFY, external calls) are not undone.',
       confirmLabel: 'Execute & roll back',
       danger: true,
     }))) return;
@@ -352,7 +352,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
       if (off >= 0 && off <= pick.text.length) {
         const a = m.getPositionAt(pick.base + off);
         const w = m.getWordAtPosition(a);
-        monaco.editor.setModelMarkers(m, 'pgstudio', [{ severity: monaco.MarkerSeverity.Error, message: r.error.message, startLineNumber: a.lineNumber, startColumn: a.column, endLineNumber: a.lineNumber, endColumn: w ? w.endColumn : a.column + 1 }]);
+        monaco.editor.setModelMarkers(m, 'tuplor', [{ severity: monaco.MarkerSeverity.Error, message: r.error.message, startLineNumber: a.lineNumber, startColumn: a.column, endLineNumber: a.lineNumber, endColumn: w ? w.endColumn : a.column + 1 }]);
       }
     }
   };
@@ -384,7 +384,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
     const m = ed?.getModel();
     if (!ed || !m) return;
     if (replace) {
-      ed.executeEdits('pgstudio', [{ range: m.getFullModelRange(), text: sql }]);
+      ed.executeEdits('tuplor', [{ range: m.getFullModelRange(), text: sql }]);
       ed.setPosition(m.getPositionAt(sql.length));
     } else {
       const sel = ed.getSelection() ?? new monaco.Selection(1, 1, 1, 1);
@@ -392,7 +392,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
       const lineText = m.getLineContent(pos.lineNumber);
       const needsBreak = !sel.isEmpty() ? false : lineText.trim().length > 0;
       const text = needsBreak ? `\n${sql}\n` : sql;
-      ed.executeEdits('pgstudio', [{ range: needsBreak ? new monaco.Range(pos.lineNumber, lineText.length + 1, pos.lineNumber, lineText.length + 1) : sel, text, forceMoveMarkers: true }]);
+      ed.executeEdits('tuplor', [{ range: needsBreak ? new monaco.Range(pos.lineNumber, lineText.length + 1, pos.lineNumber, lineText.length + 1) : sel, text, forceMoveMarkers: true }]);
     }
     ed.pushUndoStop();
     ed.focus();
@@ -470,31 +470,31 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
 
   const onMount: OnMount = (ed) => {
     editorRef.current = ed;
-    if (import.meta.env.DEV) ((window as any).__pgstudioEditors ??= {})[tab.id] = ed; // dev/e2e hook
+    if (import.meta.env.DEV) ((window as any).__tuplorEditors ??= {})[tab.id] = ed; // dev/e2e hook
     const m = ed.getModel()!;
     bindModel(m, connId, db);
     const K = monaco.KeyMod;
     const C = monaco.KeyCode;
     const add = (id: string, label: string, keys: number[], fn: () => void, menu?: number) =>
-      ed.addAction({ id, label, keybindings: keys, run: fn, contextMenuGroupId: menu != null ? '0_pgstudio' : undefined, contextMenuOrder: menu });
-    add('pgstudio.run', 'Run Statement / Selection', [K.CtrlCmd | C.Enter], () => fns.current.run('statement'), 1);
-    add('pgstudio.runScript', 'Run Script', [K.CtrlCmd | K.Shift | C.Enter], () => fns.current.run('script'), 2);
-    add('pgstudio.explain', 'Explain', [K.CtrlCmd | C.KeyE], () => fns.current.doExplain(false), 3);
-    add('pgstudio.explainAnalyze', 'Explain Analyze', [K.CtrlCmd | K.Shift | C.KeyE], () => fns.current.doExplain(true), 4);
-    add('pgstudio.cancel', 'Cancel Running Query', [K.CtrlCmd | C.Period], () => fns.current.cancel());
-    add('pgstudio.save', 'Save as .sql File', [K.CtrlCmd | C.KeyS], () => fns.current.saveFile());
-    add('pgstudio.saveSnippet', 'Save as Snippet…', [], () => saveSnippetFlow(selectedOrAll()), 5);
-    add('pgstudio.history', 'Toggle Query History', [K.CtrlCmd | K.Shift | C.KeyH], () => fns.current.toggleSide('history'));
-    add('pgstudio.maximize', 'Toggle Maximized Results', [K.CtrlCmd | K.Shift | C.KeyM], () => fns.current.toggleMaximize());
+      ed.addAction({ id, label, keybindings: keys, run: fn, contextMenuGroupId: menu != null ? '0_tuplor' : undefined, contextMenuOrder: menu });
+    add('tuplor.run', 'Run Statement / Selection', [K.CtrlCmd | C.Enter], () => fns.current.run('statement'), 1);
+    add('tuplor.runScript', 'Run Script', [K.CtrlCmd | K.Shift | C.Enter], () => fns.current.run('script'), 2);
+    add('tuplor.explain', 'Explain', [K.CtrlCmd | C.KeyE], () => fns.current.doExplain(false), 3);
+    add('tuplor.explainAnalyze', 'Explain Analyze', [K.CtrlCmd | K.Shift | C.KeyE], () => fns.current.doExplain(true), 4);
+    add('tuplor.cancel', 'Cancel Running Query', [K.CtrlCmd | C.Period], () => fns.current.cancel());
+    add('tuplor.save', 'Save as .sql File', [K.CtrlCmd | C.KeyS], () => fns.current.saveFile());
+    add('tuplor.saveSnippet', 'Save as Snippet…', [], () => saveSnippetFlow(selectedOrAll()), 5);
+    add('tuplor.history', 'Toggle Query History', [K.CtrlCmd | K.Shift | C.KeyH], () => fns.current.toggleSide('history'));
+    add('tuplor.maximize', 'Toggle Maximized Results', [K.CtrlCmd | K.Shift | C.KeyM], () => fns.current.toggleMaximize());
     ed.onDidChangeModelContent(() => {
-      if (monaco.editor.getModelMarkers({ owner: 'pgstudio', resource: m.uri }).length) monaco.editor.setModelMarkers(m, 'pgstudio', []);
+      if (monaco.editor.getModelMarkers({ owner: 'tuplor', resource: m.uri }).length) monaco.editor.setModelMarkers(m, 'tuplor', []);
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(flushSave, 400);
     });
     ed.onDidChangeCursorSelection((e) => setHasSelection(!e.selection.isEmpty()));
     ed.onDidDispose(() => {
       unbindModel(m);
-      if (import.meta.env.DEV) delete (window as any).__pgstudioEditors?.[tab.id];
+      if (import.meta.env.DEV) delete (window as any).__tuplorEditors?.[tab.id];
     });
     if (active) ed.focus();
   };
@@ -635,7 +635,7 @@ export default function SqlEditorTab({ tab, active }: TabProps) {
             <Panel id={`sqledit-${tab.id}`} panelRef={editorPanel} defaultSize="48%" minSize="8%" collapsible collapsedSize={0} onResize={(s) => setMaximized(s.asPercentage < 1)}>
               <Editor
                 language={PG_LANG}
-                path={`pgstudio-${tab.id}.sql`}
+                path={`tuplor-${tab.id}.sql`}
                 defaultValue={tab.params.sql ?? ''}
                 theme={monacoTheme(theme)}
                 onMount={onMount}

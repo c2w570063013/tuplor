@@ -28,7 +28,7 @@ import { getConnectionWithSecret } from '../store';
  * - Jobs run as child processes. The password is passed via PGPASSWORD in the child's
  *   environment only — never on the command line. Logs are kept in memory and polled
  *   incrementally by the UI (GET /api/backup/jobs/:id?since=N).
- * - Backup files live in ~/.pgstudio/backups/ (metadata in ~/.pgstudio/backups.json).
+ * - Backup files live in ~/.tuplor/backups/ (metadata in ~/.tuplor/backups.json).
  */
 
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
@@ -342,7 +342,7 @@ function lineSplitter(onLine: (l: string) => void) {
 }
 
 function pgEnv(conn: ConnectionConfig): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env, PGAPPNAME: 'PG Studio', PGCONNECT_TIMEOUT: '10' };
+  const env: NodeJS.ProcessEnv = { ...process.env, PGAPPNAME: 'Tuplor', PGCONNECT_TIMEOUT: '10' };
   for (const k of ['PGHOST', 'PGPORT', 'PGUSER', 'PGDATABASE', 'PGSERVICE', 'PGOPTIONS']) delete env[k];
   if (conn.password) env.PGPASSWORD = conn.password;
   else delete env.PGPASSWORD;

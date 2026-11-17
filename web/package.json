@@ -1,5 +1,5 @@
 {
-  "name": "@pgstudio/web",
+  "name": "@tuplor/web",
   "private": true,
   "type": "module",
   "scripts": {

@@ -33,7 +33,7 @@ export function FilesList({
   const remove = async (f: BackupFile) => {
     const ok = await confirm({
       title: `Delete ${f.name}?`,
-      message: `The backup file (${formatBytes(f.size)}) is permanently removed from ~/.pgstudio/backups. This cannot be undone.`,
+      message: `The backup file (${formatBytes(f.size)}) is permanently removed from ~/.tuplor/backups. This cannot be undone.`,
       danger: true,
       confirmLabel: 'Delete',
     });
@@ -55,7 +55,7 @@ export function FilesList({
           {files.length} file{files.length === 1 ? '' : 's'} · {formatBytes(total)}
         </span>
         <div className="flex-1" />
-        <span className="hidden truncate font-mono text-[10.5px] text-subtle md:inline">~/.pgstudio/backups</span>
+        <span className="hidden truncate font-mono text-[10.5px] text-subtle md:inline">~/.tuplor/backups</span>
         <IconButton size="sm" label="Refresh" onClick={() => void qc.invalidateQueries({ queryKey: ['backup-files'] })}>
           <RefreshCw size={13} className={cn(fetching && 'animate-spin')} />
         </IconButton>

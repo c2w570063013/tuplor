@@ -1,4 +1,4 @@
-/* ER diagram: map React Flow's theme variables onto PG Studio design tokens. */
+/* ER diagram: map React Flow's theme variables onto Tuplor design tokens. */
 .erd-flow {
   --xy-background-color: var(--bg);
   --xy-background-pattern-color: var(--border-strong);

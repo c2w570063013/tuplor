@@ -30,7 +30,7 @@ export const useSettings = create<SettingsStore>()(
       wordWrap: false,
       set: (patch) => set(patch),
     }),
-    { name: 'pgstudio.settings' },
+    { name: 'tuplor.settings' },
   ),
 );
 
@@ -42,7 +42,7 @@ export function resolvedTheme(theme: Settings['theme']): 'dark' | 'light' {
 export function applyTheme(theme: Settings['theme']) {
   const t = resolvedTheme(theme);
   document.documentElement.classList.toggle('dark', t === 'dark');
-  try { localStorage.setItem('pgstudio.theme', t); } catch { /* ignore */ }
+  try { localStorage.setItem('tuplor.theme', t); } catch { /* ignore */ }
 }
 
 export const useResolvedTheme = () => resolvedTheme(useSettings((s) => s.theme));

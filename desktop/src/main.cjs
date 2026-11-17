@@ -1,14 +1,14 @@
-// PG Studio — Electron main process.
+// Tuplor — Electron main process.
 //
 // Boot sequence: pick a port → fork the bundled server (out/server/index.mjs, or
 // Resources/server/index.mjs when packaged) in an Electron utility process → wait for
 // /api/health → load http://127.0.0.1:<port>/ in the main window.
 //
 // Env overrides (dev only):
-//   PGSTUDIO_URL=http://localhost:5173   don't start a server, load this URL (e.g. Vite dev server)
-//   PGSTUDIO_DEVTOOLS=1                  open devtools on start
-//   PGSTUDIO_UPDATE_CHECK=0              disable the GitHub release check
-//   PGSTUDIO_UPDATE_REPO=owner/repo      check this repo instead, ignoring the once-a-day limit (testing)
+//   TUPLOR_URL=http://localhost:5173   don't start a server, load this URL (e.g. Vite dev server)
+//   TUPLOR_DEVTOOLS=1                  open devtools on start
+//   TUPLOR_UPDATE_CHECK=0              disable the GitHub release check
+//   TUPLOR_UPDATE_REPO=owner/repo      check this repo instead, ignoring the once-a-day limit (testing)
 'use strict';
 
 const { app, BrowserWindow, Menu, dialog, ipcMain, nativeTheme, screen, shell, utilityProcess, net: electronNet } = require('electron');
@@ -60,7 +60,7 @@ function writeJson(file, data) {
 // Server child process
 
 let server = null; // UtilityProcess
-let serverUrl = process.env.PGSTUDIO_URL || null;
+let serverUrl = process.env.TUPLOR_URL || null;
 let quitting = false;
 let serverLog = null;
 const logTail = [];
@@ -151,8 +151,8 @@ async function startServer() {
       PORT: String(port),
       HOST: '127.0.0.1',
       PATH: augmentedPath(),
-      PGSTUDIO_DESKTOP: '1',
-      PGSTUDIO_WEB_DIST: path.join(resourcesRoot, 'web', 'dist'),
+      TUPLOR_DESKTOP: '1',
+      TUPLOR_WEB_DIST: path.join(resourcesRoot, 'web', 'dist'),
       NODE_ENV: 'production',
     },
   });
@@ -322,13 +322,13 @@ function createWindow() {
     }
   });
 
-  if (process.env.PGSTUDIO_DEVTOOLS) win.webContents.openDevTools({ mode: 'detach' });
+  if (process.env.TUPLOR_DEVTOOLS) win.webContents.openDevTools({ mode: 'detach' });
   win.loadURL(serverUrl);
   return win;
 }
 
 function sendWindowState(win) {
-  if (!win.isDestroyed()) win.webContents.send('pgstudio:window-state', { fullscreen: win.isFullScreen() });
+  if (!win.isDestroyed()) win.webContents.send('tuplor:window-state', { fullscreen: win.isFullScreen() });
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ function sendWindowState(win) {
 const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 function updateRepo() {
-  const override = process.env.PGSTUDIO_UPDATE_REPO;
+  const override = process.env.TUPLOR_UPDATE_REPO;
   const url = override ? `https://github.com/${override}` : (typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url) || '';
   const m = /github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i.exec(url);
   if (!m || /^OWNER$/i.test(m[1]) || /^REPO$/i.test(m[2])) return null;
@@ -409,9 +409,9 @@ let updateCheck = null; // one check per launch, shared by every caller
 function checkForUpdate() {
   updateCheck ??= (async () => {
     const repo = updateRepo();
-    if (!repo || process.env.PGSTUDIO_UPDATE_CHECK === '0') return null;
+    if (!repo || process.env.TUPLOR_UPDATE_CHECK === '0') return null;
     const last = readJson(prefsFile, {}).updateCheckedAt;
-    if (!process.env.PGSTUDIO_UPDATE_REPO && typeof last === 'number' && Date.now() - last < UPDATE_INTERVAL_MS) return null;
+    if (!process.env.TUPLOR_UPDATE_REPO && typeof last === 'number' && Date.now() - last < UPDATE_INTERVAL_MS) return null;
     try {
       return await fetchLatestRelease(repo);
     } catch {
@@ -421,14 +421,14 @@ function checkForUpdate() {
   return updateCheck;
 }
 
-ipcMain.handle('pgstudio:check-update', (e) => (isAppUrl(e.senderFrame?.url || '') ? checkForUpdate() : null));
+ipcMain.handle('tuplor:check-update', (e) => (isAppUrl(e.senderFrame?.url || '') ? checkForUpdate() : null));
 
 // ---------------------------------------------------------------------------------------------
 // Menu & renderer commands
 
 /** Renderer windows that registered a command handler (via preload `onCommand`). */
 const bridged = new Set();
-ipcMain.on('pgstudio:bridge-ready', (e) => bridged.add(e.sender.id));
+ipcMain.on('tuplor:bridge-ready', (e) => bridged.add(e.sender.id));
 
 function focusedWebContents() {
   return (BrowserWindow.getFocusedWindow() || mainWindow)?.webContents;
@@ -438,7 +438,7 @@ function focusedWebContents() {
 function sendCommand(command) {
   const wc = focusedWebContents();
   if (!wc || !bridged.has(wc.id)) return false;
-  wc.send('pgstudio:command', command);
+  wc.send('tuplor:command', command);
   return true;
 }
 
@@ -520,7 +520,7 @@ function buildMenu() {
       submenu: [
         { label: 'PostgreSQL Documentation', click: () => shell.openExternal('https://www.postgresql.org/docs/current/') },
         { type: 'separator' },
-        { label: 'Open Data Folder', click: () => shell.openPath(process.env.PGSTUDIO_HOME || path.join(app.getPath('home'), '.pgstudio')) },
+        { label: 'Open Data Folder', click: () => shell.openPath(process.env.TUPLOR_HOME || path.join(app.getPath('home'), '.tuplor')) },
         { label: 'Show Server Log', click: () => shell.openPath(path.join(logDir, 'server.log')) },
       ],
     },

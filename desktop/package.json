@@ -1,10 +1,10 @@
 {
-  "name": "pgstudio-desktop",
-  "productName": "PG Studio",
+  "name": "tuplor-desktop",
+  "productName": "Tuplor",
   "private": true,
   "version": "0.1.0",
-  "description": "PG Studio — a beautiful, free PostgreSQL management tool",
-  "author": "PG Studio",
+  "description": "Tuplor — a beautiful, free PostgreSQL management tool",
+  "author": "Tuplor",
   "license": "MIT",
   "repository": "https://github.com/OWNER/REPO",
   "main": "src/main.cjs",
@@ -17,7 +17,7 @@
     "release-assets": "node scripts/release-assets.mjs"
   },
   "build": {
-    "appId": "app.pgstudio",
+    "appId": "app.tuplor",
     "directories": {
       "output": "release",
       "buildResources": "build"

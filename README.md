@@ -1,4 +1,4 @@
-# 🐘 PG Studio
+# Tuplor
 
 **免費、介面優美、功能完整的 PostgreSQL 管理工具。** 從零打造,本機執行,資料不出你的電腦。
 
@@ -26,8 +26,8 @@ npm run app
 npm run desktop:build
 ```
 
-產物在 `desktop/release/`:`PG Studio.app` 與 `PG-Studio-0.1.0-arm64.dmg`。
-第一次開啟未簽章的 App:在 Finder 對 App **按右鍵 → 打開**。
+產物在 `desktop/release/`:`Tuplor.app` 與 `Tuplor-0.1.0-arm64.dmg`。
+自己打包的版本沒有經過 Apple 公證:第一次開啟被擋下時,到 **系統設定 → 隱私權與安全性**,捲到下方按 **強制打開**。
 
 **開發模式(熱重載)**
 
@@ -40,7 +40,7 @@ UI 在 http://localhost:5173,API 在 :5555。
 ### 範例資料庫
 
 ```bash
-createdb pgstudio_demo && psql -d pgstudio_demo -f scripts/demo.sql
+createdb tuplor_demo && psql -d tuplor_demo -f scripts/demo.sql
 ```
 
 包含 `shop` / `analytics` / `public` 三個 schema:enum、domain、jsonb、陣列、bytea、分割表、view、materialized view、function、procedure、trigger、6 萬筆訂單。
@@ -52,7 +52,7 @@ createdb pgstudio_demo && psql -d pgstudio_demo -f scripts/demo.sql
 
 | 模組 | 內容 |
 |---|---|
-| **連線管理** | 貼上 `postgres://` URL 自動解析、測試連線、SSL 模式、顏色標籤、群組、唯讀模式;密碼以 AES-256-GCM 加密存在 `~/.pgstudio` |
+| **連線管理** | 貼上 `postgres://` URL 自動解析、測試連線、SSL 模式、顏色標籤、群組、唯讀模式;密碼以 AES-256-GCM 加密存在 `~/.tuplor` |
 | **物件瀏覽器** | 連線 → 資料庫 → schema → 表 / view / function / sequence / type;表可展開欄位、索引、約束、觸發器、分割;搜尋即時展開;每種物件都有右鍵選單(產生 SQL、重新命名、刪除、清空、VACUUM/ANALYZE、建立物件、安裝擴充) |
 | **SQL 編輯器** | Monaco 編輯器;**依 schema 自動補全**(含別名 `o.`、CTE、依外鍵產生 JOIN);執行游標所在語句 / 選取 / 整份腳本;錯誤直接標紅在出錯位置;多結果分頁;交易狀態 + Commit/Rollback;歷史紀錄與常用片段;危險語句確認;開啟 / 儲存 .sql |
 | **執行計畫** | EXPLAIN / EXPLAIN ANALYZE 視覺化樹狀圖,熱度條標出最慢節點、列數估計偏差警告、Buffers;ANALYZE 修改資料的語句會自動回滾 |
@@ -87,7 +87,7 @@ shared/   前後端共用型別
 desktop/  Electron 外殼(打包 .app / .dmg)
 ```
 
-詳見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。資料目錄:`~/.pgstudio`(可用 `PGSTUDIO_HOME` 覆寫)。
+詳見 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。資料目錄:`~/.tuplor`(可用 `TUPLOR_HOME` 覆寫)。
 
 ## 已知限制
 

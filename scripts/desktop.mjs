@@ -53,7 +53,7 @@ switch (mode) {
     console.log(`  ${path.join(rel, 'mac-arm64', `${productName}.app`)}`);
     for (const f of info.files) console.log(`  ${path.join(rel, f)}`);
     if (!info.notarized)
-      console.log(`\n  Not notarized: on first launch right-click "${productName}" → Open (or System Settings → Privacy & Security → Open Anyway).`);
+      console.log(`\n  Not notarized: if macOS blocks the first launch, use System Settings → Privacy & Security → Open Anyway.`);
     break;
   }
   case 'assets':

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// One-command PG Studio for browser users:  npm run app
+// One-command Tuplor for browser users:  npm run app
 //
 // Builds web + server if the build is missing or older than the sources, starts the server
 // (PORT env or 5555; falls back to a free port), waits until it is healthy and opens the
-// default browser. If PG Studio is already running on that port it just opens the browser.
+// default browser. If Tuplor is already running on that port it just opens the browser.
 // Ctrl+C stops the server.
 //
 //   npm run app                 # build if needed, start, open browser
@@ -88,7 +88,7 @@ if (!fs.existsSync(path.join(root, 'node_modules'))) {
   if (spawnSync(npm, ['install', '--no-audit', '--no-fund'], { cwd: root, stdio: 'inherit' }).status !== 0) process.exit(1);
 }
 if (needsBuild()) {
-  console.log('→ building PG Studio…');
+  console.log('→ building Tuplor…');
   if (spawnSync(npm, ['run', 'build'], { cwd: root, stdio: 'inherit' }).status !== 0) process.exit(1);
 }
 
@@ -96,7 +96,7 @@ let port = wantedPort;
 if (!(await isFree(port))) {
   const existing = `http://${displayHost}:${port}/`;
   if (await healthy(existing)) {
-    console.log(`✔ PG Studio is already running at ${existing}`);
+    console.log(`✔ Tuplor is already running at ${existing}`);
     openBrowser(existing);
     process.exit(0);
   }

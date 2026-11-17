@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * PG Studio design tokens. Use ONLY these semantic colors in components
+ * Tuplor design tokens. Use ONLY these semantic colors in components
  * (bg-bg, bg-panel, bg-elevated, bg-hover, text-fg, text-muted, text-subtle,
  * border-border, bg-accent, text-accent, bg-accent-soft, text-danger, ...)
  * so that light & dark themes both work.

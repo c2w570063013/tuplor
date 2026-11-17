@@ -2,11 +2,11 @@
 // End-to-end smoke test of the desktop app over the Chrome DevTools Protocol.
 //
 //   node scripts/smoke.mjs                       # dev: node_modules/electron against desktop/out
-//   node scripts/smoke.mjs --app "release/mac-arm64/PG Studio.app"
-//   node scripts/smoke.mjs --app … --screenshot /tmp/pgstudio.png
+//   node scripts/smoke.mjs --app "release/mac-arm64/Tuplor.app"
+//   node scripts/smoke.mjs --app … --screenshot /tmp/tuplor.png
 //   node scripts/smoke.mjs --app … --isolated        # temp profile: own single-instance lock and
 //                                                    # port, so it runs next to an installed copy
-//   PGSTUDIO_UPDATE_REPO=electron/electron node scripts/smoke.mjs … --expect-update
+//   TUPLOR_UPDATE_REPO=electron/electron node scripts/smoke.mjs … --expect-update
 //                                                    # also require the "Update available" toast
 //
 // Launches the app with --remote-debugging-port, waits for the UI, checks the preload bridge
@@ -27,7 +27,7 @@ const arg = (name) => {
 const appArg = arg('--app');
 const shot = arg('--screenshot');
 const port = 9339;
-const isolatedDir = process.argv.includes('--isolated') ? fs.mkdtempSync(path.join(os.tmpdir(), 'pgstudio-smoke-')) : null;
+const isolatedDir = process.argv.includes('--isolated') ? fs.mkdtempSync(path.join(os.tmpdir(), 'tuplor-smoke-')) : null;
 const expectUpdate = process.argv.includes('--expect-update');
 
 let exe, args;
@@ -99,9 +99,9 @@ for (let i = 0; i < 100; i++) {
   await sleep(100);
 }
 
-const bridge = await evaluate(`JSON.stringify({ d: window.pgstudioDesktop && { isDesktop: window.pgstudioDesktop.isDesktop, platform: window.pgstudioDesktop.platform, onCommand: typeof window.pgstudioDesktop.onCommand }, cls: document.documentElement.className })`);
+const bridge = await evaluate(`JSON.stringify({ d: window.tuplorDesktop && { isDesktop: window.tuplorDesktop.isDesktop, platform: window.tuplorDesktop.platform, onCommand: typeof window.tuplorDesktop.onCommand }, cls: document.documentElement.className })`);
 const b = JSON.parse(bridge);
-if (!b.d?.isDesktop || b.d.onCommand !== 'function') fail('window.pgstudioDesktop bridge missing: ' + bridge);
+if (!b.d?.isDesktop || b.d.onCommand !== 'function') fail('window.tuplorDesktop bridge missing: ' + bridge);
 console.log(`✔ preload bridge: platform=${b.d.platform}, <html class="${b.cls}">`);
 
 if (b.d.platform === 'darwin') {
@@ -146,7 +146,7 @@ if (expectUpdate) {
     await sleep(200);
     text = await evaluate(`[...document.querySelectorAll('[data-sonner-toast]')].map((t) => t.textContent).find((t) => /Update available/.test(t)) || null`);
   }
-  if (!text) fail('no "Update available" toast within 20s (set PGSTUDIO_UPDATE_REPO to a repo with a newer release)');
+  if (!text) fail('no "Update available" toast within 20s (set TUPLOR_UPDATE_REPO to a repo with a newer release)');
   console.log(`✔ update notice: ${text.replace(/\s+/g, ' ').trim()}`);
 }
 

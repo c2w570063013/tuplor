@@ -156,7 +156,7 @@ export const useWorkspace = create<WorkspaceStore>()(
       },
     }),
     {
-      name: 'pgstudio.workspace',
+      name: 'tuplor.workspace',
       version: 1,
       partialize: (s) => ({
         tabs: s.tabs.filter((t) => t.kind !== 'explain'),

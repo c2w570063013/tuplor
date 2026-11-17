@@ -18,7 +18,7 @@ import JsonWorker from 'monaco-editor/language/json/json.worker?worker';
 };
 
 /** Language id for PostgreSQL SQL in Monaco. */
-export const PG_LANG = 'pgstudio-sql';
+export const PG_LANG = 'tuplor-sql';
 
 /** SQL keywords (PostgreSQL). Used for highlighting and completion. */
 export const PG_KEYWORDS = (
@@ -151,7 +151,7 @@ monaco.languages.setMonarchTokensProvider(PG_LANG, {
   },
 } as monaco.languages.IMonarchLanguage);
 
-monaco.editor.defineTheme('pgstudio-dark', {
+monaco.editor.defineTheme('tuplor-dark', {
   base: 'vs-dark',
   inherit: true,
   rules: [
@@ -196,7 +196,7 @@ monaco.editor.defineTheme('pgstudio-dark', {
   },
 });
 
-monaco.editor.defineTheme('pgstudio-light', {
+monaco.editor.defineTheme('tuplor-light', {
   base: 'vs',
   inherit: true,
   rules: [
@@ -228,5 +228,5 @@ monaco.editor.defineTheme('pgstudio-light', {
 
 loader.config({ monaco });
 
-export const monacoTheme = (t: 'dark' | 'light') => (t === 'dark' ? 'pgstudio-dark' : 'pgstudio-light');
+export const monacoTheme = (t: 'dark' | 'light') => (t === 'dark' ? 'tuplor-dark' : 'tuplor-light');
 export { monaco };

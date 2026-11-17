@@ -40,7 +40,7 @@ export default function ErdTab(props: TabProps) {
 // ------------------------------------------------------------ positions persistence
 
 const posKey = (connId: string, db: string, schemas: string[], compact: boolean) =>
-  `pgstudio.erd.v1:${connId}:${db}:${[...schemas].sort().join(',')}:${compact ? 'c' : 'f'}`;
+  `tuplor.erd.v1:${connId}:${db}:${[...schemas].sort().join(',')}:${compact ? 'c' : 'f'}`;
 
 function loadPositions(key: string): Positions {
   try {

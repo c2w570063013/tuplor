@@ -45,7 +45,7 @@ export interface TableInfo {
   canInsert: boolean;
   canUpdate: boolean;
   canDelete: boolean;
-  /** Connection is marked read-only in PG Studio. */
+  /** Connection is marked read-only in Tuplor. */
   connectionReadOnly: boolean;
   /** Human explanation when editing is (partially) unavailable. */
   readOnlyReason: string | null;

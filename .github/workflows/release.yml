@@ -2,7 +2,7 @@
 #
 # Trigger: push a tag v<version> matching desktop/package.json "version" (see docs/RELEASING.md).
 # Signing + notarization happen automatically when the Apple secrets are set; without them the
-# release is ad-hoc signed and not notarized (users must right-click → Open on first launch).
+# release is ad-hoc signed and not notarized (users must use System Settings → Privacy & Security → Open Anyway on first launch).
 name: Release
 
 on:
@@ -91,7 +91,7 @@ jobs:
             echo
             if [ "$notarized" != "true" ]; then
               echo "> [!NOTE]"
-              echo "> This build is not notarized by Apple. On first launch, right-click **${name}** in Applications → **Open** → **Open**."
+              echo "> This build is not notarized by Apple. If macOS blocks the first launch, open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to ${name}."
               echo
             fi
             echo "Verify the download: \`shasum -a 256 -c SHA256SUMS.txt\`"
