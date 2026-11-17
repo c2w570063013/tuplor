@@ -24,9 +24,9 @@ After renaming the product, run `npm run license` to regenerate `LICENSE` (CI fa
 Note that changing `build.appId` makes macOS treat the app as a different app (new
 `~/Library/Application Support/<productName>` folder), so do it before the first public release.
 
-**Before the first release**, replace the placeholder `https://github.com/OWNER/REPO` in
-`desktop/package.json` → `repository` with the real repository URL. While it is a placeholder
-the app skips the update check.
+The repository is `https://github.com/c2w570063013/tuplor` (`desktop/package.json` → `repository`,
+and `site/src/config.ts` → `owner` / `repo`). If the repository moves, update both places; while
+`repository` is a placeholder the app skips the update check.
 
 ## Release assets
 
@@ -115,7 +115,7 @@ credentials: they live only in your Keychain, your password manager and GitHub s
    ```
 
    ```bash
-   git push origin main v0.2.0
+   git push origin master v0.2.0
    ```
 
 3. Watch **Actions → Release**. When it finishes, the release is live with the assets above and

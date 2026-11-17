@@ -6,7 +6,7 @@
   "description": "Tuplor — a beautiful, free PostgreSQL management tool",
   "author": "Tuplor",
   "license": "MIT",
-  "repository": "https://github.com/OWNER/REPO",
+  "repository": "https://github.com/c2w570063013/tuplor",
   "main": "src/main.cjs",
   "scripts": {
     "stage": "node scripts/stage.mjs",

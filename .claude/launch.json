@@ -17,6 +17,20 @@
         "start"
       ],
       "port": 5555
+    },
+    {
+      "name": "tuplor-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "site",
+        "run",
+        "preview",
+        "--",
+        "--port",
+        "4321"
+      ],
+      "port": 4321
     }
   ]
 }

@@ -4,6 +4,8 @@
 
 支援 PostgreSQL 12–18,可用瀏覽器或 macOS 桌面 App 開啟,深色 / 淺色主題皆有。
 
+**官網:** https://c2w570063013.github.io/tuplor/ · **下載:** [最新版 (macOS Apple Silicon)](https://github.com/c2w570063013/tuplor/releases/latest)
+
 ---
 
 ## 快速開始

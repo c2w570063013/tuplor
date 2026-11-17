@@ -25,8 +25,8 @@ export const SITE = {
   },
 
   /** GitHub owner (user or org) and repository name. */
-  owner: 'OWNER',
-  repo: 'REPO',
+  owner: 'c2w570063013',
+  repo: 'tuplor',
 
   /** Latest released version, shown next to the download button. */
   version: '0.1.0',
@@ -48,8 +48,8 @@ export const SITE = {
    * Both can be overridden at build time with SITE_URL / BASE_PATH env vars
    * (the Pages workflow does this automatically from the repository name).
    */
-  siteUrl: 'https://OWNER.github.io',
-  basePath: '/REPO/',
+  siteUrl: 'https://c2w570063013.github.io',
+  basePath: '/tuplor/',
 } as const;
 
 export type Lang = 'en' | 'zh-TW';
