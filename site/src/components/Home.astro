@@ -1,0 +1,315 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Layout from '../layouts/Layout.astro';
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import CodeBlock from './CodeBlock.astro';
+import { SITE, links, type Lang } from '../config';
+import { t, homePath, LANGS } from '../i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const d = t(lang);
+const other = LANGS.find((l) => l !== lang)!;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/screens/*.png', { eager: true });
+const img = (name: string) => files[`../assets/screens/${name}.png`].default;
+const SHOTS = ['editor', 'grid', 'explain', 'erd', 'dashboard', 'connection'] as const;
+
+const sourceCode = `git clone https://github.com/${SITE.owner}/${SITE.repo}.git\ncd ${SITE.repo}\nnpm install\nnpm run app`;
+---
+<Layout lang={lang}>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href={homePath(lang)} aria-label={SITE.name}>
+        <Logo size={28} />
+        <span>{SITE.name}</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#screenshots">{d.nav.screenshots}</a>
+        <a href="#features">{d.nav.features}</a>
+        <a href="#install">{d.nav.install}</a>
+        <a href="#faq">{d.nav.faq}</a>
+      </nav>
+      <div class="actions">
+        <a class="icon-btn lang" href={homePath(other)} hreflang={other} lang={other} title={d.nav.language}>
+          <Icon name="globe" size={17} />
+          <span>{t(other).langName}</span>
+        </a>
+        <button class="icon-btn" type="button" data-theme-toggle aria-label={d.nav.theme} title={d.nav.theme}>
+          <Icon name="sun" size={17} class="i-sun" />
+          <Icon name="moon" size={17} class="i-moon" />
+        </button>
+        <a class="icon-btn" href={links.repo} aria-label={d.nav.github} title={d.nav.github}>
+          <Icon name="github" size={18} />
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 1. Hero ------------------------------------------------------------>
+    <section class="hero">
+      <div class="glow" aria-hidden="true"></div>
+      <div class="wrap hero-inner">
+        <a class="pill" href={links.license}>
+          <Icon name="heart" size={14} />
+          {d.hero.badge}
+        </a>
+        <h1>
+          <span class="h1-name">{SITE.name}</span>
+          <span class="h1-lead">{d.hero.titleLead}</span>
+          <span class="h1-accent">{d.hero.titleAccent}</span>
+        </h1>
+        <p class="lead">{SITE.tagline[lang]}</p>
+        <div class="cta">
+          <a class="btn btn-primary btn-lg" href={links.macArm64} data-download>
+            <Icon name="apple" size={22} />
+            <span class="btn-text">
+              <span>{d.hero.download}</span>
+              <small>{d.hero.downloadSub}</small>
+            </span>
+          </a>
+          <a class="btn btn-ghost btn-lg" href={links.repo}>
+            <Icon name="github" size={20} />
+            <span>{d.hero.star}</span>
+            <Icon name="star" size={16} class="star" />
+          </a>
+        </div>
+        <p class="hero-note">
+          {d.hero.otherPlatforms}
+          <a href="#other-platforms">{d.hero.fromSource} <Icon name="arrow" size={14} /></a>
+        </p>
+        <ul class="chips" aria-label="Highlights">
+          <li><Icon name="check" size={14} />{d.hero.pgVersions}</li>
+          <li><Icon name="check" size={14} />{SITE.license}</li>
+          <li><Icon name="check" size={14} />macOS · Apple Silicon</li>
+        </ul>
+      </div>
+
+      <!-- 2. Screenshots ---------------------------------------------------->
+      <div class="wrap shots" id="screenshots">
+        <h2 class="sr-only">{d.screens.title}</h2>
+        <div class="tabs" role="tablist" aria-label={d.screens.tabsLabel}>
+          {SHOTS.map((s, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${s}`}
+              aria-controls={`panel-${s}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+            >{d.screens.items[s].tab}</button>
+          ))}
+        </div>
+        <div class="window">
+          <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i><span>{SITE.name}</span></div>
+          {SHOTS.map((s, i) => (
+            <figure class="panel" role="tabpanel" id={`panel-${s}`} aria-labelledby={`tab-${s}`} hidden={i !== 0}>
+              {(['dark', 'light'] as const).map((th) => (
+                <Picture
+                  class={`shot shot-${th}`}
+                  src={img(`${s}-${th}`)}
+                  alt={`${SITE.name} — ${d.screens.items[s].title}`}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="png"
+                  widths={[800, 1440, 2240]}
+                  sizes="(min-width: 1180px) 1120px, calc(100vw - 32px)"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+              <figcaption>
+                <strong>{d.screens.items[s].title}</strong>
+                <span>{d.screens.items[s].body}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p class="shots-note">{d.screens.lead}</p>
+      </div>
+    </section>
+
+    <!-- 3. Features ---------------------------------------------------------->
+    <section class="section" id="features">
+      <div class="wrap">
+        <header class="section-head">
+          <h2>{d.features.title}</h2>
+          <p>{d.features.lead}</p>
+        </header>
+        <ul class="features">
+          {d.features.items.map((f) => (
+            <li class="card feature">
+              <span class="feature-icon"><Icon name={f.icon} size={20} /></span>
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. Keyboard-first & privacy -------------------------------------------->
+    <section class="section section-alt">
+      <div class="wrap duo">
+        <div class="card big-card">
+          <span class="feature-icon"><Icon name="keyboard" size={20} /></span>
+          <h2>{d.keyboard.title}</h2>
+          <p class="muted">{d.keyboard.lead}</p>
+          <ul class="shortcuts">
+            {d.keyboard.shortcuts.map((s) => (
+              <li>
+                <span class="keys">{s.keys.map((k) => <kbd>{k}</kbd>)}</span>
+                <span>{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="card big-card privacy">
+          <span class="feature-icon"><Icon name="shield" size={20} /></span>
+          <h2>{d.privacy.title}</h2>
+          <p class="muted">{d.privacy.lead}</p>
+          <ul class="points">
+            {d.privacy.points.map((p, i) => (
+              <li>
+                <Icon name={['laptop', 'lock', 'shield', 'github'][i]} size={18} />
+                <div><strong>{p.title}</strong><span>{p.body}</span></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Install ------------------------------------------------------------>
+    <section class="section" id="install">
+      <div class="wrap">
+        <header class="section-head">
+          <h2>{d.install.title}</h2>
+        </header>
+        <ol class="steps">
+          {d.install.steps.map((s, i) => (
+            <li class="card step">
+              <span class="step-n">{i + 1}</span>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+              {i === 0 && (
+                <a class="btn btn-primary" href={links.macArm64} data-download>
+                  <Icon name="download" size={16} /> {SITE.downloads.macArm64}
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+        <div class="callout">
+          <Icon name="info" size={18} />
+          <div>
+            <strong>{d.install.fallbackTitle}</strong>
+            <p>{d.install.fallbackBody}</p>
+          </div>
+        </div>
+        <div class="card other" id="other-platforms">
+          <div>
+            <h3><Icon name="terminal" size={18} /> {d.install.otherTitle}</h3>
+            <p>{d.install.otherBody}</p>
+            <p class="small muted">{d.install.otherNote}</p>
+            <a class="link" href={links.releases}>{d.install.allReleases} <Icon name="arrow" size={14} /></a>
+          </div>
+          <CodeBlock code={sourceCode} copy={d.copy} copied={d.copied} />
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FAQ ------------------------------------------------------------------>
+    <section class="section section-alt" id="faq">
+      <div class="wrap narrow">
+        <header class="section-head">
+          <h2>{d.faq.title}</h2>
+        </header>
+        <div class="faq">
+          {d.faq.items.map((f) => (
+            <details>
+              <summary>{f.q}<Icon name="chevron" size={18} /></summary>
+              <div class="answer">
+                <p>{f.a}</p>
+                {'link' in f && f.link === 'issues' && (
+                  <p><a class="link" href={links.issues}>GitHub Issues <Icon name="arrow" size={14} /></a></p>
+                )}
+                {'code' in f && f.code && <CodeBlock code={f.code} copy={d.copy} copied={d.copied} />}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 7. Footer ------------------------------------------------------------------>
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href={homePath(lang)}><Logo size={24} /><span>{SITE.name}</span></a>
+        <p class="muted small">{d.footer.tagline}</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href={links.repo}>{d.footer.github}</a>
+        <a href={links.releases}>{d.footer.releases}</a>
+        <a href={links.changelog}>{d.footer.changelog}</a>
+        <a href={links.issues}>{d.footer.issues}</a>
+        <a href={links.license}>{d.footer.license}</a>
+        <a href={homePath(other)} hreflang={other} lang={other}>{t(other).langName}</a>
+      </nav>
+    </div>
+    <div class="wrap">
+      <p class="disclaimer">© {new Date().getFullYear()} {SITE.name} · {d.footer.license}. {d.footer.disclaimer}</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle (initial theme is set inline in <head>).
+    const root = document.documentElement;
+    document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = next;
+      try { localStorage.setItem('site-theme', next); } catch {}
+    });
+
+    // Screenshot tabs (WAI-ARIA tabs pattern).
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement, focus = false) => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute('aria-controls')!);
+        if (panel) panel.hidden = !on;
+      }
+      if (focus) tab.focus();
+      tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        const n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (n) { e.preventDefault(); select(tabs[(i + n + tabs.length) % tabs.length], true); }
+        if (e.key === 'Home') { e.preventDefault(); select(tabs[0], true); }
+        if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+      });
+    });
+
+    // Copy buttons on code blocks.
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const code = btn.closest('.code')?.querySelector('code')?.textContent ?? '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const label = btn.querySelector('span')!;
+          const prev = label.textContent;
+          label.textContent = btn.dataset.copied ?? 'Copied';
+          setTimeout(() => (label.textContent = prev), 1500);
+        } catch {}
+      });
+    });
+  </script>
+</Layout>

@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import { SITE, type Lang } from '../config';
+import { t, LANGS, HTML_LANG, OG_LOCALE, homePath, asset } from '../i18n';
+
+interface Props { lang: Lang; noindex?: boolean }
+const { lang, noindex = false } = Astro.props;
+const d = t(lang);
+
+const site = Astro.site!;
+const abs = (p: string) => new URL(p, site).href;
+const canonical = abs(homePath(lang));
+const ogImage = abs(asset('og.png'));
+---
+<!doctype html>
+<html lang={HTML_LANG[lang]} data-lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{d.meta.title}</title>
+    <meta name="description" content={d.meta.description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {LANGS.map((l) => <link rel="alternate" hreflang={HTML_LANG[l]} href={abs(homePath(l))} />)}
+    <link rel="alternate" hreflang="x-default" href={abs(homePath('en'))} />
+    <link rel="sitemap" href={asset('sitemap-index.xml')} />
+
+    <link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={asset('favicon-32.png')} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+    <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={d.meta.title} />
+    <meta property="og:description" content={d.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name} — ${SITE.tagline.en}`} />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
+    {LANGS.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={OG_LOCALE[l]} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={d.meta.title} />
+    <meta name="twitter:description" content={d.meta.description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: SITE.name,
+      description: SITE.tagline[lang],
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'macOS (Apple Silicon)',
+      softwareVersion: SITE.version,
+      license: `https://opensource.org/licenses/${SITE.license}`,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      url: canonical,
+    })} />
+
+    <!-- Apply the saved / system theme before first paint (no flash). -->
+    <script is:inline>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('site-theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">{d.nav.skip}</a>
+    <slot />
+  </body>
+</html>
